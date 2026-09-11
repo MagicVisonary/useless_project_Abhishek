@@ -1,109 +1,118 @@
-# 🥭 മാങ്ങ പറി (Mango Pari)
+<img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
 
-An exciting, humorous Malayalam arcade web game where you dodge falling ripe mangoes and catch **Pari** (Prithviraj meme) into your bucket! Featuring a single-player survival mode and an interactive **4-Player Local Multiplayer Mode** where friends control their buckets from their smartphones via a QR code over Wi-Fi.
+# മാങ്ങ പറി (Mango Pari) 🎯
 
----
+## Basic Details
+### Team Name: MANGO TANGO
 
-## 🎮 Game Modes
+### Team Members
+- Team Lead: Abhishek K S - NSS College of Engineering, Palakkad
 
-### 1. 🧔 Single Player Mode (ഏകാന്ത പോരാട്ടം)
-- **Goal:** Dodge the falling ripe yellow mangoes!
-- **The Twist:** **Pari** periodically drops down the screen. You **MUST catch Pari**! If Pari hits the ground uncaught, it is **Game Over**!
-- Catching Pari awards **+100 points** and triggers an iconic, boosted voice line: *"പറി!"*.
-- Touching any mango results in instant elimination.
-- Endless gameplay with smooth, gradual difficulty scaling over time.
+### Project Description
+A chaotic, humorous Malayalam arcade web game where players must dodge falling ripe yellow mangoes and risk everything to catch **Pari** (Prithviraj meme) into their bucket! Featuring a Single-Player survival mode and an interactive **4-Player Local Multiplayer Mode** where friends control their buckets from their smartphones via a QR code over local Wi-Fi.
 
-### 2. 📱 Multiplayer Mode (4 Players - കൂട്ടായ്മ)
-- **Local Wi-Fi Party Game:** Run the main game screen on your laptop or TV screen.
-- **Phone Controllers:** Up to 4 players scan a QR code from the game lobby on their smartphones to open `controller.html`.
-- **4 Distinct Colored Buckets:**
-  - 🔵 **Player 1:** Blue
-  - 🔴 **Player 2:** Red
-  - 🟢 **Player 3:** Green
-  - 🟡 **Player 4:** Gold
-- **High-Rate Pari Spawning & Multi-Drops:** Multiple Paris spawn across different corridors so all 4 players can compete and score easily!
-- Real-time touch controls, Left/Right buttons, and gyroscope tilt supported on mobile devices.
-- Uncaught Paris in Multiplayer do not abruptly end the match—players keep playing until all buckets are knocked out by mangoes, and the winner is announced with a full score breakdown!
+### The Problem (that doesn't exist)
+Instead of traditional *manga parikkal* (mango plucking), human civilization has been lacking an intense, high-stakes system focused solely on *pari parikkal*!
 
-### 3. 🤔 "I Don't Know" (എനിക്കറിയില്ല)
-- A humorous Malayali meme dialog explaining the game's origins with Prithviraj dialogue audio and direct play buttons.
+### The Solution (that nobody asked for)
+"മാങ്ങ പറി" gives you this once-in-a-lifetime opportunity: a high-energy multiplayer game where missing Pari means defeat, touching a mango is instant death, and catching Pari unleashes a thunderous *"പറി!"* voice blast!
 
 ---
 
-## 🕹️ Controls
+## Technical Details
+### Technologies/Components Used
+For Software:
+- **Languages:** JavaScript (ES6+), HTML5, CSS3, Python 3
+- **Frameworks / APIs:**
+  - **Web Audio API:** Real-time synthesizer, dynamic range compression & 3.8x gain booster for punchy dialogue and BGM sidechain ducking.
+  - **Server-Sent Events (SSE):** Ultra low-latency real-time controller streaming from smartphones to laptop screen at ~60fps.
+  - **Pointer & Touch Events API:** Responsive mobile touch trackpad, swipe controls, Left/Right tap buttons, and optional gyroscope tilt.
+- **Libraries:**
+  - `qrcode.min.js` (Standalone, zero-dependency offline QR code generator)
+- **Tools:**
+  - Visual Studio Code
+  - Python 3 standard library (`http.server`, `socket`, `urllib.parse`)
+  - Git & GitHub
 
-- **Laptop Keyboard (Single Player):** `A` / `D` or `Left Arrow` / `Right Arrow`
-- **Mouse / Touchpad:** Click and drag bucket left/right on screen
-- **Mobile Phone Controller:** Touch trackpad drag, Left/Right tap buttons, or tilt gyro
-- **Laptop Keyboard (Multiplayer):** Player 1: `A`/`D`, Player 2: `Left`/`Right`, Player 3: `J`/`L`, Player 4: `4`/`6`
+For Hardware:
+- **Laptop / PC:** Acts as the host server and main display screen (runs the game canvas, safe corridor physics, and audio).
+- **Smartphones (1 to 4):** Connected over local Wi-Fi, functioning as wireless gamepad controllers via QR code.
 
 ---
 
-## 🚀 How to Run Locally
+### Implementation
+For Software:
+# Installation
+1. Clone this repository:
+```bash
+git clone https://github.com/Abhishek-ks-04/useless_project_Abhishek.git
+cd useless_project_Abhishek
+```
+2. No external dependencies or `npm install` needed! Everything runs using pure web technologies and Python standard library.
 
-### Prerequisites
-- Python 3.x installed (no external libraries needed, uses standard Python library).
-- Any modern web browser (Chrome, Edge, Firefox, Safari).
-
-### Quick Start (Windows)
+# Run
 Simply double-click:
 ```bat
 start_game.bat
 ```
-Or run from PowerShell / Command Prompt:
+Or run via terminal:
 ```bash
 python server.py
 ```
 *(On Windows with Python launcher: `py -3 server.py`)*
 
-The server will automatically:
-1. Detect your Wi-Fi network IP (bypassing VPNs/WARP).
-2. Launch your browser directly to `http://localhost:8080`.
-3. Host the real-time Server-Sent Events (SSE) stream on port `8080` for connected smartphones.
+Then open `http://localhost:8080` on your laptop browser!
 
 ---
 
-## 📁 Project Structure
+### Project Documentation
+For Software:
 
+# Screenshots
+
+### 1. Main Menu Screen
+![Main Menu Screen](images/Screenshot%202026-09-12%20015736.png)
+*Main Menu: Featuring Single Player, 4-Bucket Multiplayer Lobby, and the "I Don't Know" meme mode.*
+
+### 2. In-Game Gameplay Screen
+![Gameplay Screen](images/Screenshot%202026-09-12%20015935.png)
+*Live Gameplay: Player 1 bucket dodging falling ripe yellow mangoes while catching Pari with audio blast.*
+
+### 3. Game Rules
+![Rules Graphic](assets/rules.png)
+*Official rules: Catch Pari (+100 points) or game over; touching mangoes leads to instant elimination.*
+
+# Diagrams
+```text
++------------------+         Local Wi-Fi          +---------------------+
+|  Player Phone 1  | ---------------------------> |                     |
+| (controller.html)|        HTTP POST /move       |                     |
++------------------+                              |                     |
+                                                  |    Laptop Screen    |
++------------------+                              |    (index.html)     |
+|  Player Phone 2  | ---------------------------> |                     |
+| (controller.html)|                              | Real-time Canvas    |
++------------------+                              | 4 Dynamic Buckets   |
+                                                  | Web Audio BGM & SFX |
++------------------+                              |                     |
+|  Player Phone 3  | ---------------------------> |                     |
+| (controller.html)|        SSE Live Stream       |                     |
++------------------+    <------------------------ |    Python Server    |
+                             (/api/stream)        |     (server.py)     |
++------------------+                              |                     |
+|  Player Phone 4  | ---------------------------> |                     |
+| (controller.html)|                              +---------------------+
++------------------+
 ```
-mango-pari/
-├── assets/
-│   ├── bg.jpg              # Atmospheric mango orchard background
-│   ├── pari.png            # Pari (Prithviraj) portrait asset
-│   ├── rules.png           # Visual game rules graphic
-│   ├── bucket_mascot.png   # Cartoon bucket mascot
-│   ├── pari_audio.mp3      # "പറി!" voice clip
-│   └── qrcode.min.js       # Standalone offline QR code generator
-├── index.html              # Main game interface, audio synthesis, and loop
-├── controller.html         # Mobile responsive touch controller
-├── server.py               # Zero-dependency Python HTTP + SSE server
-├── start_game.bat          # 1-click Windows launcher script
-├── README.md               # Documentation & instructions
-└── .gitignore              # Git ignore rules
-```
+*Architecture workflow: Phones act as wireless gamepads streaming inputs to the laptop game over local Wi-Fi via SSE.*
+
+### Project Demo
+# Video
+[Add your demo video link here]
+*Demonstrates live gameplay: dodging mangoes, catching Pari with audio blast, and 4-player smartphone multiplayer action.*
 
 ---
+Made with ❤️ at TinkerHub Useless Projects 
 
-## 📦 How to Upload to GitHub
-
-1. Open your project folder in VS Code or Terminal:
-   ```bash
-   cd mango-pari
-   ```
-2. Initialize Git:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: Mango Pari game with Single & Multiplayer modes"
-   ```
-3. Link your remote GitHub repository and push:
-   ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/mango-pari.git
-   git branch -M main
-   git push -u origin main
-   ```
-
----
-
-## 📜 License
-MIT License. Created for fun and entertainment!
+![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
+![Static Badge](https://img.shields.io/badge/UselessProjects--26-26?link=https%3A%2F%2Ftinkerhub.org%2Fevents%2F1M8ORET9A1%2Fuseless-projects-3.0)

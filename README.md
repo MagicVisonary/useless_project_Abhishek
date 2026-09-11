@@ -69,14 +69,18 @@ Then open `http://localhost:8080` on your laptop browser!
 For Software:
 
 # Screenshots
-![Rules & Menu](assets/rules.png)
-*Main Menu and official game rules of മാങ്ങ പറി*
 
-![Pari Character](assets/pari.png)
-*Pari (Prithviraj meme) - The holy grail you must catch!*
+### 1. Main Menu Screen
+![Main Menu Screen](images/Screenshot%202026-09-12%20015736.png)
+*Main Menu: Featuring Single Player, 4-Bucket Multiplayer Lobby, and the "I Don't Know" meme mode.*
 
-![Mascot](assets/bucket_mascot.png)
-*The Mango Tango bucket mascot*
+### 2. In-Game Gameplay Screen
+![Gameplay Screen](images/Screenshot%202026-09-12%20015935.png)
+*Live Gameplay: Player 1 bucket dodging falling ripe yellow mangoes while catching Pari with audio blast.*
+
+### 3. Game Rules
+![Rules Graphic](assets/rules.png)
+*Official rules: Catch Pari (+100 points) or game over; touching mangoes leads to instant elimination.*
 
 # Diagrams
 ```text
