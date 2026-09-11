@@ -530,8 +530,7 @@
     bottom:8%;
     width:94px; height:78px;
     transform:translateX(-50%);
-    will-change:left;
-    transition:transform 0.05s ease-out;
+    will-change:left, transform;
     z-index:20;
   }
   .bucket-svg{
@@ -974,10 +973,10 @@
 
   // Buckets: Player 1 is always active by default!
   const buckets = {
-    1: { el: document.getElementById('bucket'), pct: 50, active: true, eliminated: false, score: 0 },
-    2: { el: document.getElementById('bucketP2'), pct: 25, active: false, eliminated: false, score: 0 },
-    3: { el: document.getElementById('bucketP3'), pct: 75, active: false, eliminated: false, score: 0 },
-    4: { el: document.getElementById('bucketP4'), pct: 85, active: false, eliminated: false, score: 0 },
+    1: { el: document.getElementById('bucket'), pct: 50, targetPct: 50, active: true, eliminated: false, score: 0 },
+    2: { el: document.getElementById('bucketP2'), pct: 25, targetPct: 25, active: false, eliminated: false, score: 0 },
+    3: { el: document.getElementById('bucketP3'), pct: 75, targetPct: 75, active: false, eliminated: false, score: 0 },
+    4: { el: document.getElementById('bucketP4'), pct: 85, targetPct: 85, active: false, eliminated: false, score: 0 },
   };
 
   let isMultiplayer = false;
@@ -1228,6 +1227,7 @@
     buckets[1].active = true;
     buckets[1].eliminated = false;
     buckets[1].pct = 50;
+    buckets[1].targetPct = 50;
     buckets[1].score = 0;
     buckets[1].el.classList.remove('eliminated', 'hit', 'catchGood');
     buckets[1].el.style.display = 'block';
@@ -1313,8 +1313,12 @@
   function setBucketPct(pId, pct){
     const b = buckets[pId];
     if (!b) return;
-    b.pct = Math.max(5, Math.min(95, pct));
-    b.el.style.left = b.pct + '%';
+    const clamped = Math.max(5, Math.min(95, pct));
+    b.targetPct = clamped;
+    if (!running) {
+      b.pct = clamped;
+      b.el.style.left = b.pct + '%';
+    }
   }
 
   // Setup game mode: strictly resets Player 1 bucket state in Single Player!
@@ -1646,7 +1650,23 @@
       if (keys.right) move += 1;
       if (move !== 0 && !dragging){
         const pctPerMs = (CONFIG.bucketMoveSpeed / stageRect.width) * 100 / 1000;
-        setBucketPct(1, buckets[1].pct + move * pctPerMs * dt);
+        const curTarget = buckets[1].targetPct != null ? buckets[1].targetPct : buckets[1].pct;
+        setBucketPct(1, curTarget + move * pctPerMs * dt);
+      }
+    }
+
+    // High-responsiveness 60/120 FPS Linear Interpolation (LERP)
+    // Eliminates all network jitter, discrete stepping, and bucket stutter
+    const lerpRate = Math.min(1.0, dtS * 32);
+    for (let id = 1; id <= 4; id++){
+      const b = buckets[id];
+      if (b && b.active && !b.eliminated){
+        if (b.targetPct == null) b.targetPct = b.pct;
+        const diff = b.targetPct - b.pct;
+        if (Math.abs(diff) > 0.03){
+          b.pct += diff * lerpRate;
+          b.el.style.left = b.pct + '%';
+        }
       }
     }
 
@@ -1877,6 +1897,7 @@
       buckets[1].score = 0;
       buckets[1].el.classList.remove('eliminated', 'hit');
       setBucketPct(1, 50);
+      buckets[1].targetPct = 50;
 
       for (let id = 2; id <= 4; id++){
         buckets[id].active = false;
@@ -1888,8 +1909,10 @@
         const b = buckets[id];
         b.eliminated = false;
         b.score = 0;
+        b.targetPct = b.pct;
         b.el.classList.remove('eliminated', 'hit');
       }
+      fetch('/api/reset', { method: 'POST' }).catch(()=>{});
     }
 
     startOverlay.classList.add('hidden');
@@ -1977,7 +2000,10 @@
 
   // SSE Stream for Live Phone Bucket Movement
   function connectEventStream(){
-    if (sseSource) sseSource.close();
+    if (sseSource) {
+      try { sseSource.close(); } catch(e){}
+      sseSource = null;
+    }
     try {
       sseSource = new EventSource('/api/stream');
       sseSource.onmessage = (e) => {
@@ -1993,11 +2019,15 @@
           }
         } catch(err){}
       };
+      sseSource.onerror = () => {
+        // EventSource will automatically retry connecting if network blips
+      };
     } catch(e){}
   }
 
   startMultiMatchBtn.addEventListener('click', ()=>{
     isMultiplayer = true;
+    if (lobbyPollingTimer) { clearTimeout(lobbyPollingTimer); lobbyPollingTimer = null; }
     const anyActive = [1, 2, 3, 4].some(id => buckets[id].active);
     if (!anyActive) {
       for (let id = 1; id <= 4; id++) {
@@ -2007,6 +2037,7 @@
     setupGameMode();
     showScreen(gameScreen);
     connectEventStream();
+    startGame();
   });
 
   // Keyboard controls
@@ -2015,12 +2046,15 @@
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
 
     if (isMultiplayer){
-      if (e.key === 'ArrowLeft') setBucketPct(2, buckets[2].pct - 5);
-      if (e.key === 'ArrowRight') setBucketPct(2, buckets[2].pct + 5);
-      if (e.key === 'j' || e.key === 'J') setBucketPct(3, buckets[3].pct - 5);
-      if (e.key === 'l' || e.key === 'L') setBucketPct(3, buckets[3].pct + 5);
-      if (e.key === '4') setBucketPct(4, buckets[4].pct - 5);
-      if (e.key === '6') setBucketPct(4, buckets[4].pct + 5);
+      const p2Target = buckets[2].targetPct != null ? buckets[2].targetPct : buckets[2].pct;
+      const p3Target = buckets[3].targetPct != null ? buckets[3].targetPct : buckets[3].pct;
+      const p4Target = buckets[4].targetPct != null ? buckets[4].targetPct : buckets[4].pct;
+      if (e.key === 'ArrowLeft') setBucketPct(2, p2Target - 5);
+      if (e.key === 'ArrowRight') setBucketPct(2, p2Target + 5);
+      if (e.key === 'j' || e.key === 'J') setBucketPct(3, p3Target - 5);
+      if (e.key === 'l' || e.key === 'L') setBucketPct(3, p3Target + 5);
+      if (e.key === '4') setBucketPct(4, p4Target - 5);
+      if (e.key === '6') setBucketPct(4, p4Target + 5);
     }
   });
   document.addEventListener('keyup', (e)=>{

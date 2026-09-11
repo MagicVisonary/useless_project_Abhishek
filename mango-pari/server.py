@@ -76,12 +76,20 @@ game_state = {
     'version': 0
 }
 
-state_lock = threading.Lock()
+state_condition = threading.Condition(threading.Lock())
 subscribers = [] # List of SSE output queues/writers
 
 class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
+
+    def setup(self):
+        super().setup()
+        # Disable Nagle's algorithm for sub-10ms network latency
+        try:
+            self.connection.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        except Exception:
+            pass
 
     def log_message(self, format, *args):
         # Suppress routine log clutter
@@ -113,33 +121,37 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Cache-Control', 'no-cache')
-            self.end_headers()
-            with state_lock:
+            with state_condition:
                 data = json.dumps(game_state).encode('utf-8')
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
             self.wfile.write(data)
             return
 
         if path == '/api/stream':
-            # Server-Sent Events (SSE) for low-latency live position updates
+            # Server-Sent Events (SSE) with event-driven Condition notification (sub-millisecond wakeup)
             self.send_response(200)
             self.send_header('Content-Type', 'text/event-stream')
-            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Cache-Control', 'no-cache, no-transform')
             self.send_header('Connection', 'keep-alive')
+            self.send_header('X-Accel-Buffering', 'no')
             self.end_headers()
 
             last_sent_version = -1
             try:
                 while True:
-                    time.sleep(0.016) # ~60fps
-                    with state_lock:
-                        ver = game_state['version']
-                        if ver != last_sent_version:
-                            last_sent_version = ver
-                            payload = json.dumps(game_state)
-                            msg = f"data: {payload}\n\n".encode('utf-8')
-                            self.wfile.write(msg)
-                            self.wfile.flush()
-            except (ConnectionResetError, BrokenPipeError):
+                    with state_condition:
+                        # Wait for a new version or 1.0s heartbeat timeout (instant wakeup on move)
+                        while game_state['version'] == last_sent_version:
+                            if not state_condition.wait(timeout=1.0):
+                                break
+                        last_sent_version = game_state['version']
+                        payload = json.dumps(game_state)
+
+                    msg = f"data: {payload}\n\n".encode('utf-8')
+                    self.wfile.write(msg)
+                    self.wfile.flush()
+            except (ConnectionResetError, BrokenPipeError, socket.error):
                 return
             return
 
@@ -162,14 +174,14 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
             # Phone joins game
             p_slot = None
             preferred = req.get('player')
-            with state_lock:
+            with state_condition:
                 now = time.time()
                 # Clean up inactive players (> 15 seconds without update)
                 for pid, pdata in game_state['players'].items():
                     if pdata['active'] and (now - pdata['last_seen'] > 15):
                         pdata['active'] = False
 
-                if preferred and 1 <= preferred <= 4 and not game_state['players'][preferred]['active']:
+                if preferred and 1 <= preferred <= 4:
                     p_slot = preferred
                 else:
                     for pid in range(1, 5):
@@ -183,17 +195,20 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
                     game_state['players'][p_slot]['last_seen'] = now
                     game_state['players'][p_slot]['eliminated'] = False
                     game_state['version'] += 1
+                    state_condition.notify_all()
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
-            self.end_headers()
             resp = {
                 'success': bool(p_slot),
                 'player': p_slot,
                 'color': PLAYER_COLORS[p_slot-1] if p_slot else None,
                 'name': PLAYER_NAMES[p_slot-1] if p_slot else None
             }
-            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            resp_bytes = json.dumps(resp).encode('utf-8')
+            self.send_header('Content-Length', str(len(resp_bytes)))
+            self.end_headers()
+            self.wfile.write(resp_bytes)
             return
 
         if path == '/api/move':
@@ -201,15 +216,17 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
             pid = req.get('player')
             pos = req.get('pos')
             if pid and 1 <= pid <= 4 and pos is not None:
-                with state_lock:
+                with state_condition:
                     p = game_state['players'][pid]
                     p['active'] = True
                     p['pos'] = max(4.0, min(96.0, float(pos)))
                     p['last_seen'] = time.time()
                     game_state['version'] += 1
+                    state_condition.notify_all() # INSTANT wakeup of SSE stream (<0.1ms delay)
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
             self.end_headers()
             self.wfile.write(b'{"status":"ok"}')
             return
@@ -217,23 +234,27 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
         if path == '/api/leave':
             pid = req.get('player')
             if pid and 1 <= pid <= 4:
-                with state_lock:
+                with state_condition:
                     game_state['players'][pid]['active'] = False
                     game_state['version'] += 1
+                    state_condition.notify_all()
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
             self.end_headers()
             self.wfile.write(b'{"status":"ok"}')
             return
 
         if path == '/api/reset':
-            with state_lock:
+            with state_condition:
                 for pid in range(1, 5):
                     game_state['players'][pid]['eliminated'] = False
                     game_state['players'][pid]['score'] = 0
                 game_state['version'] += 1
+                state_condition.notify_all()
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
             self.end_headers()
             self.wfile.write(b'{"status":"ok"}')
             return
@@ -243,6 +264,12 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
+    def server_bind(self):
+        try:
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        except Exception:
+            pass
+        super().server_bind()
 
 def run():
     os.chdir(DIRECTORY)

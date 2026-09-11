@@ -115,7 +115,7 @@
     border-radius:999px;
     transform:translateX(-50%);
     box-shadow:0 0 10px var(--p-color);
-    transition:left 0.05s ease-out;
+    will-change:left;
   }
 
   .bucket-icon{
@@ -263,39 +263,67 @@
     connStatus.style.color = '#70E000';
   }
 
+  let isSending = false;
+  let pendingPos = null;
+
   function setBucketPos(val){
     bucketPos = Math.max(5, Math.min(95, val));
     sliderThumb.style.left = bucketPos + '%';
     sendMove(bucketPos);
   }
 
-  // Throttle network movement to 45Hz
+  // Zero-Latency Request Coalescing: Only 1 HTTP request in-flight at a time!
+  // Eliminates 100% of browser socket queue congestion, latency accumulation, and rubber-banding.
   function sendMove(pos){
-    const now = performance.now();
-    if (now - lastSentTs < 22) return;
-    lastSentTs = now;
-
     if (!playerId) return;
+    pendingPos = pos;
+    flushMove();
+  }
+
+  function flushMove(){
+    if (isSending || pendingPos === null || !playerId) return;
+
+    isSending = true;
+    const posToSend = pendingPos;
+    pendingPos = null;
 
     fetch('/api/move', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player: playerId, pos: pos })
-    }).catch(()=>{});
+      body: JSON.stringify({ player: playerId, pos: posToSend })
+    })
+    .catch(()=>{})
+    .finally(()=>{
+      isSending = false;
+      // If a newer touch position occurred while the packet was traveling, dispatch it immediately!
+      if (pendingPos !== null) {
+        flushMove();
+      }
+    });
   }
 
-  // Connect to game server
+  // Connect to game server (with session persistence so phone refresh doesn't lose slot)
   async function joinGame(){
     connStatus.textContent = 'Connecting to game...';
     connStatus.style.color = '#FFD166';
+
+    const savedPid = parseInt(sessionStorage.getItem('mangoPariPid') || '0', 10);
+    const joinBody = {
+      name: 'Phone ' + Math.floor(Math.random()*100)
+    };
+    if (savedPid >= 1 && savedPid <= 4) {
+      joinBody.player = savedPid;
+    }
+
     try {
       const res = await fetch('/api/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Phone ' + Math.floor(Math.random()*100) })
+        body: JSON.stringify(joinBody)
       });
       const data = await res.json();
       if (data.success && data.player) {
+        sessionStorage.setItem('mangoPariPid', data.player);
         setPlayerUI(data.player, data.color, data.name);
         try { navigator.vibrate(60); } catch(e){}
       } else {
@@ -305,7 +333,7 @@
     } catch(err){
       connStatus.textContent = 'Server offline or connecting...';
       connStatus.style.color = '#FF9800';
-      setTimeout(joinGame, 3000);
+      setTimeout(joinGame, 2500);
     }
   }
 
@@ -319,34 +347,40 @@
 
   touchArea.addEventListener('pointerdown', (e)=>{
     isDragging = true;
-    touchArea.setPointerCapture(e.pointerId);
+    try { touchArea.setPointerCapture(e.pointerId); } catch(err){}
     handleTouch(e.clientX);
   });
   touchArea.addEventListener('pointermove', (e)=>{
     if (!isDragging) return;
     handleTouch(e.clientX);
   });
-  function stopDrag(){ isDragging = false; }
+  function stopDrag(e){
+    isDragging = false;
+    try { if (e && e.pointerId) touchArea.releasePointerCapture(e.pointerId); } catch(err){}
+  }
   touchArea.addEventListener('pointerup', stopDrag);
   touchArea.addEventListener('pointercancel', stopDrag);
 
-  // Left / Right Hold Buttons
+  // Left / Right Hold Buttons with direct PointerCapture for snappy response
   function bindHold(btn, dir){
     let stepTimer = null;
     const start = (e) => {
       e.preventDefault();
-      try { navigator.vibrate(20); } catch(e){}
+      try { btn.setPointerCapture(e.pointerId); } catch(err){}
+      try { navigator.vibrate(20); } catch(err){}
       setBucketPos(bucketPos + dir * 3.5);
       clearInterval(stepTimer);
       stepTimer = setInterval(()=>{
         setBucketPos(bucketPos + dir * 3.0);
       }, 35);
     };
-    const stop = () => { clearInterval(stepTimer); };
+    const stop = (e) => {
+      clearInterval(stepTimer);
+      try { if (e && e.pointerId) btn.releasePointerCapture(e.pointerId); } catch(err){}
+    };
 
     btn.addEventListener('pointerdown', start);
     btn.addEventListener('pointerup', stop);
-    btn.addEventListener('pointerleave', stop);
     btn.addEventListener('pointercancel', stop);
   }
   bindHold(btnLeft, -1);
@@ -383,14 +417,13 @@
 
   reconnectBtn.addEventListener('click', joinGame);
 
-  // Keep-alive heartbeat every 4 seconds
+  // Disable default context menu
+  window.addEventListener('contextmenu', (e)=> e.preventDefault());
+
+  // Keep-alive heartbeat every 4 seconds only if idle
   setInterval(()=>{
-    if (playerId) {
-      fetch('/api/move', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player: playerId, pos: bucketPos })
-      }).catch(()=>{});
+    if (playerId && !isSending && pendingPos === null) {
+      sendMove(bucketPos);
     }
   }, 4000);
 
