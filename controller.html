@@ -192,6 +192,149 @@
     color:#FFF;
     border-color:transparent;
   }
+
+  /* Fullscreen Alert Modals (Elimination & Victory) */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(12, 6, 20, 0.9);
+    backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; z-index:100;
+    touch-action:none;
+  }
+  .modal-overlay.hidden{ display:none !important; }
+  .modal-card{
+    width:100%; max-width:360px;
+    border-radius:26px; padding:26px 22px;
+    text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.8);
+    animation:popIn 0.3s ease-out;
+  }
+  @keyframes popIn{
+    0%{ transform:scale(0.8); opacity:0; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .elim-card{
+    background:radial-gradient(circle at 50% 20%, #4D121B 0%, #1A070B 90%);
+    border:2px solid #E63946;
+  }
+  .elim-icon{ font-size:54px; filter:drop-shadow(0 6px 12px rgba(230,57,70,0.5)); }
+  .mangatholi-tag{
+    background:#E63946; color:#FFF;
+    font-weight:900; font-size:20px;
+    padding:8px 22px; border-radius:999px;
+    box-shadow:0 4px 16px rgba(230,57,70,0.6);
+    letter-spacing:0.5px;
+  }
+  .stat-bubble{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.16);
+    padding:8px 22px; border-radius:14px;
+    font-size:16px; font-weight:800; color:#FFF;
+  }
+  .victory-card{
+    background:radial-gradient(circle at 50% 15%, #2D164B 0%, #120924 90%);
+    border:2px solid #FFD166;
+  }
+  .winner-trophy{ font-size:56px; filter:drop-shadow(0 6px 14px rgba(255,209,102,0.6)); }
+  .victory-board{
+    width:100%; display:flex; flex-direction:column; gap:8px; margin-top:8px;
+    max-height:180px; overflow-y:auto;
+  }
+  .victory-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 12px; border-radius:14px; font-size:14px; font-weight:800;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+  }
+  .victory-row.winner{
+    background:rgba(255, 209, 102, 0.18); border-color:#FFD166; color:#FFD166;
+  }
+  .victory-row.eliminated{
+    color:#FF8A80;
+  }
+  .mangatholi-mini{
+    background:#E63946; color:#FFF;
+    font-size:11px; padding:2px 8px; border-radius:999px;
+    font-weight:800; margin-left:6px;
+  }
+  .ready-ok-tag{
+    background:#2E7D32;
+    color:#A7F3D0;
+    border:1px solid #4ADE80;
+    font-size:11px;
+    font-weight:900;
+    padding:2px 8px;
+    border-radius:999px;
+    display:inline-flex;
+    align-items:center;
+    gap:2px;
+    box-shadow:0 0 8px rgba(74, 222, 128, 0.4);
+  }
+  .ready-wait-tag{
+    background:rgba(255,255,255,0.08);
+    color:#DECFF3;
+    border:1px solid rgba(255,255,255,0.18);
+    font-size:11px;
+    font-weight:800;
+    padding:2px 8px;
+    border-radius:999px;
+    display:inline-flex;
+    align-items:center;
+    gap:2px;
+  }
+  .victory-timer-badge{
+    background:rgba(255, 209, 102, 0.15);
+    border:1.5px solid #FFD166;
+    color:#FFF5E4;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:13.5px;
+    font-weight:800;
+    margin:4px 0;
+    animation:pulseSlow 1.5s infinite ease-in-out;
+  }
+  @keyframes pulseSlow{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.03); box-shadow:0 0 12px rgba(255,209,102,0.4); }
+  }
+  .btn-play-again{
+    width:100%;
+    padding:13px 18px;
+    border-radius:16px;
+    border:none;
+    background:linear-gradient(135deg, #4CAF50, #2E7D32);
+    color:#FFF;
+    font-family:inherit;
+    font-size:16px;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(46, 125, 50, 0.4);
+    transition:transform 0.1s, filter 0.1s;
+  }
+  .btn-play-again:active{
+    transform:scale(0.96);
+  }
+  .btn-play-again.is-ready{
+    background:linear-gradient(135deg, #1B5E20, #0D3810);
+    border:1.5px solid #4ADE80;
+    color:#A7F3D0;
+  }
+  .btn-phone-menu{
+    width:100%;
+    padding:10px 16px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.08);
+    color:#DECFF3;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .btn-phone-menu:active{
+    transform:scale(0.96);
+    background:rgba(255,255,255,0.14);
+  }
 </style>
 </head>
 <body>
@@ -221,6 +364,49 @@
   <div id="footer">
     <button class="small-btn" id="tiltBtn">📱 Tilt Control: OFF</button>
     <button class="small-btn" id="reconnectBtn">🔄 Rejoin</button>
+  </div>
+
+  <!-- Elimination Screen for this Phone -->
+  <div id="eliminatedModal" class="modal-overlay hidden">
+    <div class="modal-card elim-card">
+      <div class="elim-icon">🥭💀</div>
+      <h2 style="color:#FF5252; font-size:26px; margin:0;">നിങ്ങൾ ഔട്ട്!</h2>
+      <div class="mangatholi-tag">മാങ്ങാത്തൊലി! (Mangatholi)</div>
+      <p style="color:#FFCDD2; font-size:14.5px; margin:4px 0;">ഒരു മാങ്ങ കൊട്ടയിൽ വീണുപോയി!</p>
+      <div class="stat-bubble">
+        നിങ്ങളുടെ സ്കോർ: <span id="elimScore" style="font-weight:900; color:#FFD166;">0</span> pts
+      </div>
+      <p style="color:#B9A6D6; font-size:13px; margin-top:6px;">ബാക്കിയുള്ളവർ കളി തുടരുന്നു... കാത്തിരിക്കുക.</p>
+    </div>
+  </div>
+
+  <!-- Victory / End Screen for this Phone -->
+  <div id="victoryModal" class="modal-overlay hidden">
+    <div class="modal-card victory-card">
+      <div class="winner-trophy">🏆</div>
+      <h2 id="victoryWinnerTitle" style="color:#FFD166; font-size:24px; margin:0;">Player 1 ജയിച്ചു!</h2>
+      
+      <!-- 30-Second Countdown Timer Badge -->
+      <div class="victory-timer-badge" id="victoryTimerBadge">
+        ⏳ അടുത്ത കളി തുടങ്ങാൻ: <span id="victoryTimerText" style="font-weight:900; color:#FFD166;">30</span>s
+      </div>
+
+      <!-- OK List / Participant Ready Checklist -->
+      <div style="font-size:12.5px; color:#DECFF3; margin-top:6px; font-weight:800; width:100%; display:flex; justify-content:space-between; padding:0 4px;">
+        <span>കളിക്കാർ (Score)</span>
+        <span>തയ്യാറാണോ (Ready)</span>
+      </div>
+      <div id="victoryLeaderboard" class="victory-board">
+        <!-- Filled dynamically with tick marks -->
+      </div>
+
+      <!-- Phone Action Buttons -->
+      <div style="width:100%; display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+        <button id="btnPhonePlayAgain" class="btn-play-again">🎮 Play Again (വീണ്ടും കളിക്കാം)</button>
+        <button id="btnPhoneBackMenu" class="btn-phone-menu">🏠 Back to Menu (പുറത്തേക്ക്)</button>
+      </div>
+      <small style="color:#B9A6D6; font-size:11.5px; margin-top:4px;">കുറഞ്ഞത് 2 കളിക്കാർ റെഡി ആയാൽ കളി തനിയെ തുടങ്ങും.</small>
+    </div>
   </div>
 
 <script>
@@ -253,6 +439,20 @@
   const tiltBtn = document.getElementById('tiltBtn');
   const reconnectBtn = document.getElementById('reconnectBtn');
 
+  // Elimination & Victory modal elements
+  const eliminatedModal = document.getElementById('eliminatedModal');
+  const elimScore = document.getElementById('elimScore');
+  const victoryModal = document.getElementById('victoryModal');
+  const victoryWinnerTitle = document.getElementById('victoryWinnerTitle');
+  const victoryLeaderboard = document.getElementById('victoryLeaderboard');
+  const victoryTimerText = document.getElementById('victoryTimerText');
+  const btnPhonePlayAgain = document.getElementById('btnPhonePlayAgain');
+  const btnPhoneBackMenu = document.getElementById('btnPhoneBackMenu');
+
+  let isEliminated = false;
+  let isGameOver = false;
+  let myReady = false;
+
   function setPlayerUI(pid, color, name){
     playerId = pid;
     playerColor = color || PLAYER_COLORS[pid] || '#2196F3';
@@ -267,6 +467,7 @@
   let pendingPos = null;
 
   function setBucketPos(val){
+    if (isEliminated) return; // Controls locked if eliminated
     bucketPos = Math.max(5, Math.min(95, val));
     sliderThumb.style.left = bucketPos + '%';
     sendMove(bucketPos);
@@ -275,7 +476,7 @@
   // Zero-Latency Request Coalescing: Only 1 HTTP request in-flight at a time!
   // Eliminates 100% of browser socket queue congestion, latency accumulation, and rubber-banding.
   function sendMove(pos){
-    if (!playerId) return;
+    if (!playerId || isEliminated) return;
     pendingPos = pos;
     flushMove();
   }
@@ -302,6 +503,145 @@
     });
   }
 
+  // Realtime Game Event Stream for Phone (Handles Elimination & Victory screens)
+  let eventSource = null;
+  function connectControllerEvents(){
+    if (eventSource) {
+      try { eventSource.close(); } catch(e){}
+      eventSource = null;
+    }
+    try {
+      eventSource = new EventSource('/api/stream');
+      eventSource.onmessage = (e) => {
+        try {
+          const state = JSON.parse(e.data);
+          if (!state) return;
+
+          // 1. Elimination Check for this Phone
+          if (playerId && state.players && state.players[playerId]) {
+            const me = state.players[playerId];
+            if (me.eliminated && !isEliminated) {
+              isEliminated = true;
+              elimScore.textContent = me.score || 0;
+              eliminatedModal.classList.remove('hidden');
+              try { navigator.vibrate([250, 100, 350, 100, 500]); } catch(err){}
+              try {
+                const lalAudio = new Audio('music/malayalam-actor-lal.mp3');
+                lalAudio.volume = 0.95;
+                lalAudio.play().catch(()=>{});
+              } catch(err){}
+              connStatus.textContent = `💀 ഔട്ട്! മാങ്ങാത്തൊലി! 🥭`;
+              connStatus.style.color = '#FF5252';
+            } else if (!me.eliminated && isEliminated && state.status === 'playing') {
+              // Match restarted
+              isEliminated = false;
+              eliminatedModal.classList.add('hidden');
+              victoryModal.classList.add('hidden');
+              connStatus.textContent = `Connected as Player ${playerId} • Live`;
+              connStatus.style.color = '#70E000';
+            }
+          }
+
+          // 2. Match Ended / Victory Screen
+          if (state.status === 'ended') {
+            isGameOver = true;
+            renderVictoryScreen(state);
+          } else if (state.status === 'playing' && isGameOver) {
+            // Next round started automatically or via host
+            isGameOver = false;
+            isEliminated = false;
+            myReady = false;
+            if (btnPhonePlayAgain) {
+              btnPhonePlayAgain.textContent = '🎮 Play Again (വീണ്ടും കളിക്കാം)';
+              btnPhonePlayAgain.classList.remove('is-ready');
+            }
+            eliminatedModal.classList.add('hidden');
+            victoryModal.classList.add('hidden');
+            connStatus.textContent = `Connected as Player ${playerId} • Live`;
+            connStatus.style.color = '#70E000';
+            try { navigator.vibrate([100, 50, 100]); } catch(err){}
+          } else if (state.status === 'lobby' && isGameOver) {
+            // 30s timer expired without minimum 2 ready players: exit to lobby
+            isGameOver = false;
+            isEliminated = false;
+            myReady = false;
+            victoryModal.classList.add('hidden');
+            eliminatedModal.classList.add('hidden');
+            connStatus.textContent = '🛑 സമയം കഴിഞ്ഞു. ആവശ്യത്തിന് കളിക്കാർ തയ്യാറായില്ല. (Lobby)';
+            connStatus.style.color = '#FF9800';
+          }
+        } catch(err){}
+      };
+    } catch(e){}
+  }
+
+  function renderVictoryScreen(state){
+    eliminatedModal.classList.add('hidden');
+    victoryModal.classList.remove('hidden');
+
+    const winnerId = state.winner;
+    if (winnerId) {
+      victoryWinnerTitle.textContent = `🏆 Player ${winnerId} ജയിച്ചു! (Winner)`;
+    } else {
+      victoryWinnerTitle.textContent = `🏆 കളി കഴിഞ്ഞു! (Match Ended)`;
+    }
+
+    if (victoryTimerText && state.timer_remaining != null) {
+      victoryTimerText.textContent = state.timer_remaining;
+    }
+
+    if (state.players && playerId && state.players[playerId]) {
+      myReady = Boolean(state.players[playerId].ready);
+      if (myReady) {
+        btnPhonePlayAgain.textContent = '✅ Ready! (മറ്റുള്ളവർക്കായി കാത്തിരിക്കുന്നു...)';
+        btnPhonePlayAgain.classList.add('is-ready');
+      } else {
+        btnPhonePlayAgain.textContent = '🎮 Play Again (വീണ്ടും കളിക്കാം)';
+        btnPhonePlayAgain.classList.remove('is-ready');
+      }
+    }
+
+    victoryLeaderboard.innerHTML = '';
+    const playerEntries = [];
+    for (let id = 1; id <= 4; id++){
+      const p = state.players && state.players[id];
+      if (p && p.active){
+        playerEntries.push({ id, ...p });
+      }
+    }
+    // If none marked active, show slots 1 to 4
+    const list = playerEntries.length > 0 ? playerEntries : [1, 2, 3, 4].map(id => ({ id, name: `Player ${id}`, score: 0, eliminated: false, ready: false }));
+
+    // Sort: Winner first, then not eliminated, then highest score
+    list.sort((a, b) => {
+      if (a.id === winnerId) return -1;
+      if (b.id === winnerId) return 1;
+      if (!a.eliminated && b.eliminated) return -1;
+      if (a.eliminated && !b.eliminated) return 1;
+      return (b.score || 0) - (a.score || 0);
+    });
+
+    list.forEach(p => {
+      const isWinner = winnerId && p.id === winnerId;
+      const isElim = p.eliminated;
+      const isReady = Boolean(p.ready);
+      const row = document.createElement('div');
+      row.className = 'victory-row' + (isWinner ? ' winner' : (isElim ? ' eliminated' : ''));
+      row.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:${PLAYER_COLORS[p.id]};"></span>
+          <span>${p.name || 'Player ' + p.id}</span>
+          ${isWinner ? '<span style="font-size:12px; color:#FFD166;">👑 ജേതാവ്</span>' : (isElim ? '<span class="mangatholi-mini">മാങ്ങാത്തൊലി 🥭</span>' : '')}
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:13px;">${p.score || 0} pts</span>
+          ${isReady ? '<span class="ready-ok-tag">✅ OK</span>' : '<span class="ready-wait-tag">⏳ Wait</span>'}
+        </div>
+      `;
+      victoryLeaderboard.appendChild(row);
+    });
+  }
+
   // Connect to game server (with session persistence so phone refresh doesn't lose slot)
   async function joinGame(){
     connStatus.textContent = 'Connecting to game...';
@@ -325,6 +665,7 @@
       if (data.success && data.player) {
         sessionStorage.setItem('mangoPariPid', data.player);
         setPlayerUI(data.player, data.color, data.name);
+        connectControllerEvents();
         try { navigator.vibrate(60); } catch(e){}
       } else {
         connStatus.textContent = 'Game Full (Max 4 Players)';
@@ -414,6 +755,53 @@
     const targetPct = 50 + (tilt / 30) * 45;
     setBucketPos(targetPct);
   }
+
+  btnPhonePlayAgain.addEventListener('click', async () => {
+    if (!playerId) return;
+    myReady = !myReady;
+    if (myReady) {
+      btnPhonePlayAgain.textContent = '✅ Ready! (മറ്റുള്ളവർക്കായി കാത്തിരിക്കുന്നു...)';
+      btnPhonePlayAgain.classList.add('is-ready');
+      try { navigator.vibrate(50); } catch(e){}
+    } else {
+      btnPhonePlayAgain.textContent = '🎮 Play Again (വീണ്ടും കളിക്കാം)';
+      btnPhonePlayAgain.classList.remove('is-ready');
+    }
+    try {
+      await fetch('/api/ready', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player: playerId, ready: myReady })
+      });
+    } catch(err){}
+  });
+
+  btnPhoneBackMenu.addEventListener('click', async () => {
+    if (playerId) {
+      try {
+        await fetch('/api/leave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ player: playerId })
+        });
+      } catch(e){}
+    }
+    sessionStorage.removeItem('mangoPariPid');
+    if (eventSource) {
+      try { eventSource.close(); } catch(e){}
+      eventSource = null;
+    }
+    victoryModal.classList.add('hidden');
+    eliminatedModal.classList.add('hidden');
+    playerId = null;
+    myReady = false;
+    isGameOver = false;
+    isEliminated = false;
+    connStatus.textContent = 'കളിയിൽ നിന്ന് പുറത്തായി (Left Game)';
+    connStatus.style.color = '#DECFF3';
+    playerText.textContent = 'Disconnected';
+    playerDot.style.background = '#888';
+  });
 
   reconnectBtn.addEventListener('click', joinGame);
 

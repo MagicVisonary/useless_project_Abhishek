@@ -67,17 +67,82 @@ PLAYER_NAMES = ['Player 1', 'Player 2', 'Player 3', 'Player 4']
 
 game_state = {
     'players': {
-        1: {'active': False, 'name': 'Player 1', 'color': PLAYER_COLORS[0], 'pos': 20.0, 'last_seen': 0, 'score': 0, 'eliminated': False},
-        2: {'active': False, 'name': 'Player 2', 'color': PLAYER_COLORS[1], 'pos': 40.0, 'last_seen': 0, 'score': 0, 'eliminated': False},
-        3: {'active': False, 'name': 'Player 3', 'color': PLAYER_COLORS[2], 'pos': 60.0, 'last_seen': 0, 'score': 0, 'eliminated': False},
-        4: {'active': False, 'name': 'Player 4', 'color': PLAYER_COLORS[3], 'pos': 80.0, 'last_seen': 0, 'score': 0, 'eliminated': False},
+        1: {'active': False, 'name': 'Player 1', 'color': PLAYER_COLORS[0], 'pos': 20.0, 'last_seen': 0, 'score': 0, 'eliminated': False, 'ready': False},
+        2: {'active': False, 'name': 'Player 2', 'color': PLAYER_COLORS[1], 'pos': 40.0, 'last_seen': 0, 'score': 0, 'eliminated': False, 'ready': False},
+        3: {'active': False, 'name': 'Player 3', 'color': PLAYER_COLORS[2], 'pos': 60.0, 'last_seen': 0, 'score': 0, 'eliminated': False, 'ready': False},
+        4: {'active': False, 'name': 'Player 4', 'color': PLAYER_COLORS[3], 'pos': 80.0, 'last_seen': 0, 'score': 0, 'eliminated': False, 'ready': False},
     },
     'status': 'lobby', # 'lobby' or 'playing' or 'ended'
+    'winner': None,
+    'timer_end': 0,
+    'timer_remaining': 0,
     'version': 0
 }
 
 state_condition = threading.Condition(threading.Lock())
 subscribers = [] # List of SSE output queues/writers
+
+def start_match_locked():
+    """Starts/restarts match for active players under state_condition lock."""
+    # Guarantee at least 2 players (P1 and P2) are active for multiplayer mode
+    active_count = len([p for p in game_state['players'].values() if p['active']])
+    if active_count < 2:
+        game_state['players'][1]['active'] = True
+        game_state['players'][2]['active'] = True
+
+    game_state['status'] = 'playing'
+    game_state['winner'] = None
+    game_state['timer_end'] = 0
+    game_state['timer_remaining'] = 0
+    for pid in range(1, 5):
+        game_state['players'][pid]['eliminated'] = False
+        game_state['players'][pid]['ready'] = False
+        game_state['players'][pid]['score'] = 0
+    game_state['version'] += 1
+    state_condition.notify_all()
+
+def countdown_monitor():
+    """Background monitor for the 30-second post-match Ready countdown."""
+    while True:
+        time.sleep(0.5)
+        with state_condition:
+            if game_state['status'] == 'ended' and game_state.get('timer_end', 0) > 0:
+                remaining = max(0, int(game_state['timer_end'] - time.time()))
+                if remaining != game_state.get('timer_remaining'):
+                    game_state['timer_remaining'] = remaining
+                    game_state['version'] += 1
+                    state_condition.notify_all()
+
+                active_players = [p for p in game_state['players'].values() if p['active']]
+                ready_players = [p for p in active_players if p.get('ready')]
+
+                # Condition A: ALL active players (minimum 2) have clicked ready -> start immediately!
+                if len(active_players) >= 2 and len(ready_players) == len(active_players):
+                    start_match_locked()
+                    continue
+
+                # Condition B: 30-second timer expired
+                if remaining <= 0:
+                    if len(ready_players) >= 2:
+                        # Auto-start with ready players; drop players who did not click ready
+                        for pid, p in game_state['players'].items():
+                            if p['active'] and not p.get('ready'):
+                                p['active'] = False
+                        start_match_locked()
+                    else:
+                        # Fewer than 2 players ready: exit back to lobby
+                        game_state['status'] = 'lobby'
+                        game_state['winner'] = None
+                        game_state['timer_end'] = 0
+                        game_state['timer_remaining'] = 0
+                        for pid in range(1, 5):
+                            game_state['players'][pid]['ready'] = False
+                            game_state['players'][pid]['eliminated'] = False
+                        game_state['version'] += 1
+                        state_condition.notify_all()
+
+# Start background countdown monitor thread
+threading.Thread(target=countdown_monitor, daemon=True).start()
 
 class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -176,9 +241,9 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
             preferred = req.get('player')
             with state_condition:
                 now = time.time()
-                # Clean up inactive players (> 15 seconds without update)
+                # Clean up inactive players (> 45 seconds without update)
                 for pid, pdata in game_state['players'].items():
-                    if pdata['active'] and (now - pdata['last_seen'] > 15):
+                    if pdata['active'] and (now - pdata['last_seen'] > 45):
                         pdata['active'] = False
 
                 if preferred and 1 <= preferred <= 4:
@@ -236,6 +301,7 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
             if pid and 1 <= pid <= 4:
                 with state_condition:
                     game_state['players'][pid]['active'] = False
+                    game_state['players'][pid]['ready'] = False
                     game_state['version'] += 1
                     state_condition.notify_all()
             self.send_response(200)
@@ -245,13 +311,106 @@ class MangoServerHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b'{"status":"ok"}')
             return
 
-        if path == '/api/reset':
+        if path == '/api/ready':
+            pid = req.get('player')
+            is_ready = req.get('ready', True)
+            if pid and 1 <= pid <= 4:
+                with state_condition:
+                    if game_state['players'][pid]['active']:
+                        game_state['players'][pid]['ready'] = bool(is_ready)
+                        game_state['version'] += 1
+                        state_condition.notify_all()
+
+                        # If ALL active players (minimum 2) have clicked ready, start immediately!
+                        active_players = [p for p in game_state['players'].values() if p['active']]
+                        ready_players = [p for p in active_players if p.get('ready')]
+                        if len(active_players) >= 2 and len(ready_players) == len(active_players):
+                            start_match_locked()
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
+            self.end_headers()
+            self.wfile.write(b'{"status":"ok"}')
+            return
+
+        if path == '/api/eliminate':
+            pid = req.get('player')
+            score = req.get('score', 0)
+            if pid and 1 <= pid <= 4:
+                with state_condition:
+                    game_state['players'][pid]['eliminated'] = True
+                    game_state['players'][pid]['score'] = int(score)
+
+                    # Check how many active players are still standing
+                    active_pids = [p_id for p_id, p in game_state['players'].items() if p['active']]
+                    standing_pids = [p_id for p_id in active_pids if not game_state['players'][p_id].get('eliminated')]
+
+                    if len(active_pids) >= 2 and len(standing_pids) <= 1:
+                        # 1 or 0 standing -> match ended! Declare winner and start 30s countdown
+                        winner_id = standing_pids[0] if len(standing_pids) == 1 else pid
+                        game_state['status'] = 'ended'
+                        game_state['winner'] = winner_id
+                        game_state['timer_end'] = time.time() + 30.0
+                        game_state['timer_remaining'] = 30
+                        for p in game_state['players'].values():
+                            p['ready'] = False
+                    elif len(active_pids) < 2:
+                        game_state['status'] = 'ended'
+                        game_state['winner'] = pid
+                        game_state['timer_end'] = time.time() + 30.0
+                        game_state['timer_remaining'] = 30
+                        for p in game_state['players'].values():
+                            p['ready'] = False
+
+                    game_state['version'] += 1
+                    state_condition.notify_all()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
+            self.end_headers()
+            self.wfile.write(b'{"status":"ok"}')
+            return
+
+        if path == '/api/game_over':
+            winner = req.get('winner')
+            scores = req.get('scores', {})
             with state_condition:
+                game_state['status'] = 'ended'
+                game_state['winner'] = winner
+                game_state['timer_end'] = time.time() + 30.0
+                game_state['timer_remaining'] = 30
+                for pid_str, pscore in scores.items():
+                    try:
+                        pid = int(pid_str)
+                        if 1 <= pid <= 4:
+                            game_state['players'][pid]['score'] = int(pscore)
+                    except Exception:
+                        pass
                 for pid in range(1, 5):
-                    game_state['players'][pid]['eliminated'] = False
-                    game_state['players'][pid]['score'] = 0
+                    game_state['players'][pid]['ready'] = False
                 game_state['version'] += 1
                 state_condition.notify_all()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
+            self.end_headers()
+            self.wfile.write(b'{"status":"ok"}')
+            return
+
+        if path == '/api/start':
+            with state_condition:
+                start_match_locked()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', '15')
+            self.end_headers()
+            self.wfile.write(b'{"status":"ok"}')
+            return
+
+        if path == '/api/reset':
+            with state_condition:
+                start_match_locked()
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Content-Length', '15')

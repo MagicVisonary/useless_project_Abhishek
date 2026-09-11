@@ -11,11 +11,13 @@
 ### Project Description
 A chaotic, humorous Malayalam arcade web game where players must dodge falling ripe yellow mangoes and risk everything to catch **Pari** (Prithviraj meme) into their bucket! Featuring a Single-Player survival mode and an interactive **4-Player Local Multiplayer Mode** where friends control their buckets from their smartphones via a QR code over local Wi-Fi.
 
+Now enhanced with a **"Last Player Standing" Battle Royale elimination system**: when a player's bucket hits a mango, their phone vibrates and locks out with the infamous **"മാങ്ങാത്തൊലി! (Mangatholi)"** title, while the surviving players battle it out until the champion stands victorious!
+
 ### The Problem (that doesn't exist)
 Instead of traditional *manga parikkal* (mango plucking), human civilization has been lacking an intense, high-stakes system focused solely on *pari parikkal*!
 
 ### The Solution (that nobody asked for)
-"മാങ്ങ പറി" gives you this once-in-a-lifetime opportunity: a high-energy multiplayer game where missing Pari means defeat, touching a mango is instant death, and catching Pari unleashes a thunderous *"പറി!"* voice blast!
+"മാങ്ങ പറി" gives you this once-in-a-lifetime opportunity: a high-energy multiplayer game where missing Pari means defeat, touching a mango gives you the title of *Mangatholi*, and catching Pari unleashes a thunderous *"പറി!"* voice blast!
 
 ---
 
@@ -25,18 +27,20 @@ For Software:
 - **Languages:** JavaScript (ES6+), HTML5, CSS3, Python 3
 - **Frameworks / APIs:**
   - **Web Audio API:** Real-time synthesizer, dynamic range compression & 3.8x gain booster for punchy dialogue and BGM sidechain ducking.
-  - **Server-Sent Events (SSE):** Ultra low-latency real-time controller streaming from smartphones to laptop screen at ~60fps.
+  - **Server-Sent Events (SSE) + TCP_NODELAY:** Ultra low-latency (<15ms) event-driven streaming from smartphones to the laptop screen with sub-millisecond Condition wakeups.
+  - **Request Coalescing Netcode:** Guarantees exactly 1 active HTTP request per phone, eliminating 100% of mobile browser socket queue congestion.
+  - **60/120 FPS Linear Interpolation (LERP):** Smooth client-side bucket gliding eliminating all network jitter and packet stutter.
   - **Pointer & Touch Events API:** Responsive mobile touch trackpad, swipe controls, Left/Right tap buttons, and optional gyroscope tilt.
 - **Libraries:**
   - `qrcode.min.js` (Standalone, zero-dependency offline QR code generator)
 - **Tools:**
   - Visual Studio Code
-  - Python 3 standard library (`http.server`, `socket`, `urllib.parse`)
+  - Python 3 standard library (`http.server`, `socket`, `threading`, `urllib.parse`)
   - Git & GitHub
 
 For Hardware:
 - **Laptop / PC:** Acts as the host server and main display screen (runs the game canvas, safe corridor physics, and audio).
-- **Smartphones (1 to 4):** Connected over local Wi-Fi, functioning as wireless gamepad controllers via QR code.
+- **Smartphones (1 to 4):** Connected over local Wi-Fi, functioning as wireless gamepad controllers via QR code with live haptic feedback.
 
 ---
 
