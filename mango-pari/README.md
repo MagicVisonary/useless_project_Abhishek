@@ -108,8 +108,12 @@ For Software:
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Demonstrates live gameplay: dodging mangoes, catching Pari with audio blast, and 4-player smartphone multiplayer action.*
+
+<video src="images/Recording%202026-09-12%20020811.mp4" controls="controls" width="100%"></video>
+
+🎥 **[Click here to watch / download the Gameplay Demo Recording (MP4)](images/Recording%202026-09-12%20020811.mp4)**
+
+*Demonstrates live gameplay: dodging falling mangoes, catching Pari with audio blast, and 4-player smartphone multiplayer action.*
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
