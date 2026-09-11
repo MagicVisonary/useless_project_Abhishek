@@ -2,26 +2,24 @@
 
 
 
-# [Project Name] 🎯
+# [മാങ്ങ പറി] 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: MANGO TANGO
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: Abhishek K S - NSS college of engineering palakkad
+
 
 ### Project Description
-[2-3 lines about what your project does]
+A game where you avoid catching mangoes but risk your lives to catch pari
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
-
+Instead of manga parikkal we should focus only on parikkal 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+The game gives you the opportunity
 
 ## Technical Details
 ### Technologies/Components Used
