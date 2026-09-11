@@ -1,1 +1,2080 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>മാങ്ങ പറി - Mango Pari</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@600;700;800;900&family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<!-- Local QR code generator (100% offline) -->
+<script src="assets/qrcode.min.js"></script>
+<style>
+  :root{
+    --sky-top:#201138;
+    --sky-mid:#783155;
+    --sky-low:#FF7F3F;
+    --sky-glow:#FFD166;
+    --bark:#653E17;
+    --leaf-1:#255A43;
+    --leaf-2:#378261;
+    --leaf-3:#48A87C;
+    --mango-yellow-1:#FFFDE7;
+    --mango-yellow-2:#FFEE58;
+    --mango-yellow-3:#FFEB3B;
+    --mango-yellow-4:#FFD600;
+    --mango-gold:#FFB300;
+    --cream:#FFF5E4;
+    --ink:#1F112D;
+    --danger:#E63946;
+    --success:#4CAF50;
+    --p1-color:#2196F3;
+    --p2-color:#F44336;
+    --p3-color:#4CAF50;
+    --p4-color:#FF9800;
+    --font-display:'Anek Malayalam', 'Baloo 2', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, sans-serif;
+  }
 
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body{
+    margin:0;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:12px 10px 24px;
+    font-family:var(--font-body);
+    color:var(--cream);
+    background:
+      linear-gradient(rgba(18, 9, 30, 0.72), rgba(28, 14, 45, 0.85)),
+      url('assets/bg.jpg') center center / cover no-repeat fixed,
+      #160B28;
+    background-attachment:fixed;
+    overflow-x:hidden;
+  }
+
+  /* Shared Header */
+  header.game-header{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:4px 0 8px;
+    flex-wrap:wrap;
+    position:relative;
+    width:100%;
+    max-width:980px;
+  }
+
+  h1.main-title{
+    font-family:var(--font-display);
+    font-weight:900;
+    font-size:clamp(30px, 6vw, 46px);
+    margin:0;
+    letter-spacing:0.5px;
+    color:var(--cream);
+    text-shadow:0 3px 0 rgba(0,0,0,0.4), 0 0 24px rgba(255,209,102,0.35);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .rules-badge-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,0.12);
+    border:2px solid var(--sky-glow);
+    padding:6px 14px;
+    border-radius:999px;
+    color:var(--sky-glow);
+    font-family:var(--font-display);
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    backdrop-filter:blur(6px);
+    transition:transform 0.1s, background 0.2s;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  }
+  .rules-badge-btn:hover{
+    background:rgba(255,255,255,0.22);
+    transform:scale(1.04);
+  }
+  .rules-thumb{
+    width:32px; height:32px;
+    border-radius:8px;
+    object-fit:cover;
+    border:1px solid rgba(255,255,255,0.3);
+  }
+
+  /* Screens Container */
+  .screen{
+    width:100%;
+    max-width:980px;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    animation:fadeIn 0.25s ease-out;
+  }
+  .screen.active{ display:flex; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+  /* ========================================================= */
+  /* SCREEN 1: MAIN MENU                                       */
+  /* ========================================================= */
+  #menuScreen{
+    margin-top:10px;
+  }
+  .menu-card{
+    width:100%;
+    max-width:680px;
+    background:rgba(20, 10, 32, 0.82);
+    border:2px solid rgba(255,209,102,0.3);
+    border-radius:28px;
+    padding:30px 24px;
+    backdrop-filter:blur(12px);
+    box-shadow:0 24px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:18px;
+  }
+
+  .menu-mascot{
+    width:110px;
+    height:auto;
+    filter:drop-shadow(0 10px 14px rgba(0,0,0,0.5));
+    animation:float 4s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-8px); }
+  }
+
+  .menu-rules-preview{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.16);
+    padding:10px 18px;
+    border-radius:18px;
+    max-width:500px;
+    cursor:pointer;
+    transition:background 0.2s, transform 0.1s;
+  }
+  .menu-rules-preview:hover{
+    background:rgba(255,255,255,0.14);
+    transform:scale(1.02);
+  }
+  .menu-rules-img{
+    width:70px; height:50px;
+    object-fit:contain;
+    border-radius:8px;
+    background:rgba(0,0,0,0.25);
+  }
+  .menu-rules-text{
+    text-align:left;
+    font-size:13.5px;
+    color:#EADCFE;
+    line-height:1.35;
+  }
+  .menu-rules-text strong{ color:var(--sky-glow); }
+
+  .menu-btn-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    width:100%;
+    max-width:440px;
+    margin-top:6px;
+  }
+  .menu-btn{
+    position:relative;
+    width:100%;
+    padding:16px 24px;
+    border-radius:20px;
+    border:none;
+    cursor:pointer;
+    font-family:var(--font-display);
+    font-size:22px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    color:#1F112D;
+    background:linear-gradient(180deg, var(--sky-glow), #FFB300);
+    box-shadow:0 6px 0 #B5490F, 0 10px 20px rgba(0,0,0,0.4);
+    transition:transform 0.08s ease, filter 0.15s ease;
+  }
+  .menu-btn:hover{ filter:brightness(1.07); }
+  .menu-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #B5490F; }
+
+  .menu-btn.multi{
+    background:linear-gradient(180deg, #4DD0E1, #0288D1);
+    box-shadow:0 6px 0 #01579B, 0 10px 20px rgba(0,0,0,0.4);
+    color:#FFF;
+  }
+  .menu-btn.multi:active{ box-shadow:0 2px 0 #01579B; }
+
+  .menu-btn.confused{
+    background:linear-gradient(180deg, #CE93D8, #8E24AA);
+    box-shadow:0 6px 0 #4A148C, 0 10px 20px rgba(0,0,0,0.4);
+    color:#FFF;
+    font-size:20px;
+  }
+  .menu-btn.confused:active{ box-shadow:0 2px 0 #4A148C; }
+
+  /* ========================================================= */
+  /* SCREEN 2: "I DON'T KNOW" (MEME SCREEN)                    */
+  /* ========================================================= */
+  .idk-card{
+    width:100%;
+    max-width:680px;
+    background:rgba(22, 11, 35, 0.88);
+    border:2px solid #BA68C8;
+    border-radius:28px;
+    padding:28px 24px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 20px 45px rgba(0,0,0,0.6);
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+  .idk-pari-avatar{
+    width:110px; height:110px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid var(--sky-glow);
+    box-shadow:0 0 24px rgba(255,209,102,0.4);
+    animation:float 3.5s ease-in-out infinite;
+  }
+  .idk-dialogue{
+    background:rgba(255,255,255,0.08);
+    border-left:4px solid var(--sky-glow);
+    padding:14px 18px;
+    border-radius:0 16px 16px 0;
+    font-size:16px;
+    line-height:1.5;
+    color:#FFF;
+    text-align:left;
+    max-width:520px;
+  }
+
+  /* ========================================================= */
+  /* SCREEN 3: MULTIPLAYER LOBBY                               */
+  /* ========================================================= */
+  .lobby-card{
+    width:100%;
+    max-width:760px;
+    background:rgba(20, 10, 32, 0.86);
+    border:2px solid rgba(33, 150, 243, 0.5);
+    border-radius:28px;
+    padding:26px 20px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 24px 50px rgba(0,0,0,0.6);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:18px;
+  }
+  .qr-section{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    flex-wrap:wrap;
+    background:rgba(255,255,255,0.06);
+    padding:18px 24px;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,0.16);
+    width:100%;
+    max-width:620px;
+  }
+  #qrcode{
+    background:#FFF;
+    padding:10px;
+    border-radius:14px;
+    display:inline-block;
+    box-shadow:0 8px 18px rgba(0,0,0,0.4);
+  }
+  .qr-instructions{
+    text-align:left;
+    max-width:320px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .qr-instructions h3{
+    margin:0; font-size:19px; color:var(--sky-glow); font-family:var(--font-display);
+  }
+  .qr-instructions p{
+    margin:0; font-size:13.5px; color:#DECFF3; line-height:1.4;
+  }
+  .qr-link-box{
+    font-size:13px;
+    background:rgba(0,0,0,0.4);
+    padding:6px 12px;
+    border-radius:8px;
+    word-break:break-all;
+    font-family:monospace;
+    color:#81D4FA;
+  }
+
+  .slots-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:14px;
+    width:100%;
+    max-width:640px;
+    margin:6px 0;
+  }
+  .player-slot{
+    background:rgba(255,255,255,0.06);
+    border:2px dashed rgba(255,255,255,0.2);
+    border-radius:18px;
+    padding:14px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    transition:all 0.2s ease;
+  }
+  .player-slot.connected{
+    border-style:solid;
+    background:rgba(255,255,255,0.12);
+  }
+  .player-slot.p1.connected{ border-color:var(--p1-color); box-shadow:0 0 14px rgba(33, 150, 243, 0.3); }
+  .player-slot.p2.connected{ border-color:var(--p2-color); box-shadow:0 0 14px rgba(244, 67, 54, 0.3); }
+  .player-slot.p3.connected{ border-color:var(--p3-color); box-shadow:0 0 14px rgba(76, 175, 80, 0.3); }
+  .player-slot.p4.connected{ border-color:var(--p4-color); box-shadow:0 0 14px rgba(255, 152, 0, 0.3); }
+  .slot-bucket-icon{ font-size:32px; }
+  .slot-title{ font-family:var(--font-display); font-size:16px; font-weight:800; }
+  .slot-status{
+    font-size:12px; padding:3px 10px; border-radius:999px;
+    background:rgba(255,255,255,0.1); color:#B9A6D6; font-weight:700;
+  }
+  .player-slot.connected .slot-status{ background:#4CAF50; color:#FFF; }
+
+  /* ========================================================= */
+  /* SCREEN 4: GAMEPLAY HUD & STAGE                            */
+  /* ========================================================= */
+  #hud{
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+  }
+  .badge{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(255,255,255,0.09);
+    border:1px solid rgba(255,255,255,0.18);
+    padding:7px 14px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:13.5px;
+    backdrop-filter:blur(6px);
+  }
+  .badge .val{ font-family:var(--font-display); font-size:17px; color:var(--sky-glow); }
+
+  .icon-btn{
+    background:rgba(255,255,255,0.09);
+    border:1px solid rgba(255,255,255,0.18);
+    color:var(--cream);
+    width:38px; height:38px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform 0.1s, background 0.2s;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,0.18); }
+  .icon-btn:active{ transform:scale(0.92); }
+
+  /* WIDE PLAYING STAGE */
+  #stageWrap{
+    position:relative;
+    width:100%;
+    max-width:980px;
+    margin:0 auto;
+  }
+  #stage{
+    position:relative;
+    width:100%;
+    height:min(70vh, 580px);
+    min-height:410px;
+    border-radius:24px;
+    overflow:hidden;
+    border:4px solid #170C29;
+    box-shadow:0 20px 48px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(255,255,255,0.08);
+    background:
+      linear-gradient(180deg, rgba(32, 17, 56, 0.45) 0%, rgba(120, 49, 85, 0.45) 50%, rgba(255, 127, 63, 0.4) 100%),
+      url('assets/bg.jpg') center bottom / cover no-repeat;
+    touch-action:none;
+    cursor:grab;
+    user-select:none;
+  }
+  #stage.dragging{ cursor:grabbing; }
+
+  /* Ground bar */
+  .ground{
+    position:absolute; left:0; right:0; bottom:0; height:18%;
+    background:linear-gradient(180deg, rgba(62, 122, 76, 0.8) 0%, rgba(28, 60, 36, 0.95) 100%);
+    border-top:3px solid #52B788;
+    z-index:5;
+  }
+
+  /* Tree Canopy */
+  #tree{ position:absolute; top:-6px; left:0; right:0; height:35%; pointer-events:none; z-index:4; }
+  .branch{
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:92%; height:18px; background:var(--bark); border-radius:0 0 50px 50px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.3);
+  }
+  .leafCluster{ position:absolute; border-radius:52% 48% 55% 45%/55% 45% 55% 45%; animation:sway 4.5s ease-in-out infinite; }
+  @keyframes sway{ 0%,100%{ transform:rotate(-2.5deg);} 50%{ transform:rotate(2.5deg);} }
+
+  /* Yellow decorative canopy mangoes */
+  .decoMango{
+    position:absolute; width:18px; height:24px; border-radius:50% 50% 46% 46%/55% 55% 45% 45%;
+    background:radial-gradient(circle at 30% 30%, var(--mango-yellow-1), var(--mango-yellow-4) 75%, var(--mango-gold) 100%);
+    box-shadow:inset -2px -2px 4px rgba(0,0,0,0.25), 0 3px 5px rgba(0,0,0,0.25);
+    animation:sway 3.8s ease-in-out infinite;
+  }
+
+  /* ========================================================= */
+  /* REALISTIC FALLING YELLOW MANGO (SVG)                      */
+  /* ========================================================= */
+  .mango-wrapper{
+    position:absolute;
+    top:0;
+    width:52px;
+    height:66px;
+    transform:translateX(-50%);
+    pointer-events:none;
+    z-index:15;
+    will-change:transform;
+  }
+  .mango-svg{
+    width:100%;
+    height:100%;
+    display:block;
+    filter:drop-shadow(0 5px 6px rgba(0,0,0,0.35));
+  }
+
+  /* ========================================================= */
+  /* CLEAN, TAG-FREE FALLING PARI (PRITHVIRAJ PORTRAIT)        */
+  /* ========================================================= */
+  .pari-container{
+    position:absolute;
+    top:0;
+    width:74px;
+    height:74px;
+    transform:translateX(-50%);
+    pointer-events:none;
+    z-index:25;
+    will-change:transform;
+  }
+  .pari-card{
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    border:3.5px solid #FFD166;
+    background:#FFFFFF;
+    box-shadow:0 0 22px rgba(255, 209, 102, 0.95), 0 8px 18px rgba(0,0,0,0.45);
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto;
+  }
+  .pari-face{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* Catch Celebration Popup */
+  .pari-popup{
+    position:absolute;
+    transform:translate(-50%, -50%);
+    font-family:var(--font-display);
+    font-weight:900;
+    font-size:26px;
+    color:#FFD166;
+    text-shadow:0 3px 0 #B5490F, 0 0 18px #FFD166;
+    pointer-events:none;
+    animation:popupRise 0.85s ease-out forwards;
+    z-index:35;
+  }
+  @keyframes popupRise{
+    0%{ transform:translate(-50%, 0) scale(0.6); opacity:0; }
+    30%{ transform:translate(-50%, -20px) scale(1.2); opacity:1; }
+    100%{ transform:translate(-50%, -55px) scale(1); opacity:0; }
+  }
+
+  /* Buckets */
+  .bucket-wrap{
+    position:absolute;
+    bottom:8%;
+    width:94px; height:78px;
+    transform:translateX(-50%);
+    will-change:left;
+    transition:transform 0.05s ease-out;
+    z-index:20;
+  }
+  .bucket-svg{
+    width:100%; height:100%; display:block;
+    filter:drop-shadow(0 9px 9px rgba(0,0,0,0.4));
+  }
+  .bucket-label{
+    position:absolute;
+    top:-26px; left:50%;
+    transform:translateX(-50%);
+    font-family:var(--font-display);
+    font-size:12.5px;
+    font-weight:800;
+    padding:2px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+    box-shadow:0 2px 6px rgba(0,0,0,0.3);
+  }
+  .bucket-wrap.eliminated{
+    opacity:0.35;
+    filter:grayscale(0.9);
+    transform:translateX(-50%) rotate(25deg);
+  }
+  .bucket-p1 .bucket-label{ background:var(--p1-color); color:#FFF; }
+  .bucket-p2 .bucket-label{ background:var(--p2-color); color:#FFF; }
+  .bucket-p3 .bucket-label{ background:var(--p3-color); color:#FFF; }
+  .bucket-p4 .bucket-label{ background:var(--p4-color); color:#1F112D; }
+
+  .bucket-wrap.hit{ animation:hitShake 0.4s ease; }
+  .bucket-wrap.catchGood{ animation:bounce 0.35s ease; }
+  @keyframes hitShake{ 0%,100%{ transform:translateX(-50%) rotate(0);} 25%{ transform:translateX(-50%) rotate(-8deg);} 75%{ transform:translateX(-50%) rotate(8deg);} }
+  @keyframes bounce{ 0%{ transform:translateX(-50%) scale(1);} 40%{ transform:translateX(-50%) scale(1.12,0.88);} 100%{ transform:translateX(-50%) scale(1);} }
+
+  .particle{ position:absolute; border-radius:50%; pointer-events:none; z-index:28; }
+
+  /* Overlays */
+  .overlay{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+    background:rgba(18,9,30,0.82);
+    backdrop-filter:blur(6px);
+    text-align:center; padding:24px;
+    z-index:40;
+  }
+  .overlay h2{ font-family:var(--font-display); font-size:clamp(28px,6vw,38px); margin:0; }
+  .overlay p{ margin:0; color:#E8DCFA; font-size:16px; max-width:440px; line-height:1.5; }
+  .overlay .stats-box{ display:flex; gap:16px; margin:4px 0; }
+  .overlay .stat-pill{
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.22);
+    padding:8px 18px; border-radius:12px;
+    font-size:15px; font-weight:700;
+  }
+  .overlay.hidden{ display:none; }
+
+  /* Controls for Single Player */
+  #controls{
+    display:flex; align-items:center; justify-content:center; gap:28px;
+    margin-top:14px;
+  }
+  .dirBtn{
+    width:66px; height:66px;
+    border-radius:50%;
+    border:none;
+    background:radial-gradient(circle at 35% 30%, #5E3D7D, #2B1645);
+    color:var(--cream);
+    font-size:26px;
+    box-shadow:0 6px 0 #150926, 0 8px 16px rgba(0,0,0,0.45);
+    cursor:pointer;
+    user-select:none;
+    transition:transform 0.06s ease;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dirBtn:active{ transform:translateY(4px); box-shadow:0 2px 0 #150926; }
+  #hint{ font-size:13px; color:#C4B2E2; margin-top:10px; text-align:center; max-width:480px; line-height:1.4; }
+
+  .primaryBtn{
+    font-family:var(--font-display);
+    font-size:20px; font-weight:800;
+    padding:12px 34px;
+    border-radius:16px;
+    border:none;
+    cursor:pointer;
+    color:#241533;
+    background:linear-gradient(180deg, var(--sky-glow), #FFB300);
+    box-shadow:0 6px 0 #B5490F, 0 10px 18px rgba(0,0,0,0.38);
+    transition:transform 0.08s ease, filter 0.15s ease;
+  }
+  .primaryBtn:hover{ filter:brightness(1.06); }
+  .primaryBtn:active{ transform:translateY(4px); box-shadow:0 2px 0 #B5490F; }
+
+  .secondaryBtn{
+    font-family:var(--font-display);
+    font-size:17px; font-weight:700;
+    padding:10px 24px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.25);
+    cursor:pointer;
+    color:#FFF;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(4px);
+    transition:background 0.2s;
+  }
+  .secondaryBtn:hover{ background:rgba(255,255,255,0.2); }
+
+  /* Rules modal */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(12,6,22,0.85);
+    backdrop-filter:blur(8px);
+    z-index:999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    animation:fadeIn 0.2s ease-out;
+  }
+  .modal-overlay.active{ display:flex; }
+  .modal-card{
+    background:rgba(26, 14, 42, 0.95);
+    border:2px solid rgba(255,209,102,0.4);
+    border-radius:26px;
+    max-width:580px;
+    width:100%;
+    padding:24px 22px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.7);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:16px;
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .modal-card h2{ font-family:var(--font-display); font-size:28px; margin:0; color:var(--sky-glow); }
+  .modal-rules-img{
+    width:100%; max-height:220px; object-fit:contain; border-radius:14px;
+    background:rgba(0,0,0,0.3); padding:6px;
+  }
+  .rules-detail-list{
+    text-align:left; width:100%; font-size:15px; line-height:1.6; color:#EADCFE;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .rules-detail-item{
+    display:flex; align-items:flex-start; gap:10px;
+    background:rgba(255,255,255,0.06); padding:10px 14px; border-radius:12px;
+  }
+  .rules-detail-item .icon{ font-size:22px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+  <!-- Audio elements -->
+  <audio id="pariAudio" src="assets/pari_audio.mp3" preload="auto"></audio>
+
+  <!-- Top Title & Rules Header -->
+  <header class="game-header">
+    <h1 class="main-title">🥭 മാങ്ങ പറി</h1>
+    <button class="rules-badge-btn" id="openRulesBtn" title="View Game Rules">
+      <img src="assets/rules.png" alt="Rules" class="rules-thumb">
+      <span>📜 കളി നിയമങ്ങൾ (Rules)</span>
+    </button>
+  </header>
+
+  <!-- SCREEN 1: MAIN MENU -->
+  <div class="screen active" id="menuScreen">
+    <div class="menu-card">
+      <img src="assets/bucket_mascot.png" alt="Mascot" class="menu-mascot">
+      <div style="font-size:16px; color:#DECFF3; line-height:1.4;">
+        മാങ്ങ ഒഴിഞ്ഞു മാറുക, പറി വീഴുമ്പോൾ പിടിക്കുക!
+      </div>
+
+      <div class="menu-rules-preview" id="menuRulesBanner">
+        <img src="assets/rules.png" alt="Rules Illustration" class="menu-rules-img">
+        <div class="menu-rules-text">
+          <strong>നിയമം:</strong> മഞ്ഞ മാങ്ങ കൊട്ടയിൽ വീണാൽ ഔട്ട്! പറി (പൃഥ്വിരാജ്) താഴെ വീണാലും ഔട്ട്! പറി പിടിച്ചാൽ സ്കോർ!
+        </div>
+      </div>
+
+      <div class="menu-btn-list">
+        <button class="menu-btn" id="btnSinglePlayer">
+          <span>👤</span>
+          <span>Single Player (ഏകാംഗം)</span>
+        </button>
+        <button class="menu-btn multi" id="btnMultiplayer">
+          <span>👥📱</span>
+          <span>Multiplayer (4 Buckets)</span>
+        </button>
+        <button class="menu-btn confused" id="btnIdk">
+          <span>🤷‍♂️</span>
+          <span>I Don't Know (എനിക്കറിയില്ല)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: I DON'T KNOW -->
+  <div class="screen" id="idkScreen">
+    <div class="idk-card">
+      <img src="assets/pari.png" alt="Pari" class="idk-pari-avatar">
+      <h2 style="font-family:var(--font-display); color:var(--sky-glow); font-size:30px; margin:0;">
+        🤷‍♂️ എനിക്കറിയില്ല! (I Don't Know!)
+      </h2>
+      <div class="idk-dialogue">
+        <strong>കൺഫ്യൂഷൻ ആണോ അളിയാ? 😎 വളരെ സിമ്പിൾ ആണ്:</strong><br><br>
+        1. മുകളിൽ നിന്ന് തകൃതിയായി മഞ്ഞ മാങ്ങകൾ വീഴും. മാങ്ങയെ കൊട്ടയിൽ കൊള്ളാതെ ഒഴിഞ്ഞു മാറുക!<br>
+        2. ഇടയ്ക്കിടെ നമ്മുടെ <strong>'പറി' (പൃഥ്വിരാജ്)</strong> താഴേക്ക് ചാടും. അവനെ ചാടിപ്പിടിക്കണം!<br>
+        3. പറി താഴെ വീണാലോ, മാങ്ങ കൊട്ടയിൽ വീണാലോ നിങ്ങൾ ഔട്ട്! 💀<br>
+        4. കൂടെ കളിക്കാൻ ചങ്ങാതിമാർ ഉണ്ടെങ്കിൽ നേരെ മൾട്ടിപ്ലെയർ എടുത്ത് ഫോൺ കണക്ട് ചെയ്യുക!
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%;">
+        <button class="primaryBtn" id="idkPlaySingle">🎮 Play Single Player</button>
+        <button class="primaryBtn" id="idkPlayMulti" style="background:linear-gradient(180deg,#4DD0E1,#0288D1); color:#FFF;">👥 Play Multiplayer</button>
+        <button class="secondaryBtn" id="idkBackMenu">🔙 Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: MULTIPLAYER LOBBY -->
+  <div class="screen" id="lobbyScreen">
+    <div class="lobby-card">
+      <h2 style="font-family:var(--font-display); font-size:32px; color:#81D4FA; margin:0;">
+        📱 Multiplayer Lobby (4 Players)
+      </h2>
+      <p style="color:#DECFF3; font-size:15px; margin:0; max-width:540px;">
+        ഈ ലാപ്ടോപ്പിൽ കളി നടക്കും! നിങ്ങളുടെ ഫോണിലെ ക്യാമറ വെച്ച് താഴെ കാണുന്ന QR കോഡ് സ്കാൻ ചെയ്ത് കൊട്ട കൺട്രോൾ ചെയ്യുക.
+      </p>
+
+      <div class="qr-section">
+        <div id="qrcode"></div>
+        <div class="qr-instructions">
+          <h3>ഫോണിൽ സ്കാൻ ചെയ്യുക</h3>
+          <p>ലാപ്‌ടോപ്പും ഫോണും ഒരേ Wi-Fi യിൽ ആയിരിക്കണം.</p>
+          <div class="qr-link-box" id="qrLinkText">http://localhost:8080/controller.html</div>
+          <small style="color:#B9A6D6;">കീബോർഡിലും കളിക്കാം (P1: A/D, P2: ⬅️/➡️, P3: J/L, P4: 4/6)</small>
+        </div>
+      </div>
+
+      <div class="slots-grid">
+        <div class="player-slot p1" id="slot1">
+          <div class="slot-bucket-icon" style="color:var(--p1-color);">🪣</div>
+          <div class="slot-title" style="color:var(--p1-color);">Player 1 (Blue)</div>
+          <div class="slot-status" id="slot1Status">Waiting...</div>
+        </div>
+        <div class="player-slot p2" id="slot2">
+          <div class="slot-bucket-icon" style="color:var(--p2-color);">🪣</div>
+          <div class="slot-title" style="color:var(--p2-color);">Player 2 (Red)</div>
+          <div class="slot-status" id="slot2Status">Waiting...</div>
+        </div>
+        <div class="player-slot p3" id="slot3">
+          <div class="slot-bucket-icon" style="color:var(--p3-color);">🪣</div>
+          <div class="slot-title" style="color:var(--p3-color);">Player 3 (Green)</div>
+          <div class="slot-status" id="slot3Status">Waiting...</div>
+        </div>
+        <div class="player-slot p4" id="slot4">
+          <div class="slot-bucket-icon" style="color:var(--p4-color);">🪣</div>
+          <div class="slot-title" style="color:var(--p4-color);">Player 4 (Gold)</div>
+          <div class="slot-status" id="slot4Status">Waiting...</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+        <button class="primaryBtn" id="startMultiMatchBtn" style="font-size:22px; padding:14px 44px;">
+          🚀 Start Match (കളി തുടങ്ങാം!)
+        </button>
+        <button class="secondaryBtn" id="lobbyBackMenu">🔙 Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: GAMEPLAY SCREEN -->
+  <div class="screen" id="gameScreen">
+    <div id="hud">
+      <button class="secondaryBtn" id="gameBackMenuBtn" style="padding:6px 14px; font-size:14px;">🏠 Menu</button>
+      <div class="badge" id="hudDodged">🍃 Dodged <span class="val" id="dodgedVal">0</span></div>
+      <div class="badge" id="hudPariCaught">🧔 Pari Caught <span class="val" id="pariCaughtVal">0</span></div>
+      <div class="badge" id="hudDiff">⚡ Difficulty <span class="val" id="diffVal">1.0x</span></div>
+      <div class="badge" id="hudBest">🏆 High Score <span class="val" id="bestVal">0</span></div>
+      <button class="icon-btn" id="muteBtn" aria-label="Toggle Sound" title="Toggle audio & music">🔊</button>
+    </div>
+
+    <div id="stageWrap">
+      <div id="stage">
+        <div id="tree">
+          <div class="branch"></div>
+        </div>
+        <div class="ground"></div>
+
+        <!-- Single Player Bucket -->
+        <div id="bucket" class="bucket-wrap bucket-p1">
+          <div class="bucket-label">P1</div>
+          <svg class="bucket-svg" viewBox="0 0 92 76" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="46" cy="16" rx="40" ry="12" fill="#E8C27A" stroke="#7A4E2E" stroke-width="2"/>
+            <path d="M9 16 L20 68 Q46 78 72 68 L83 16 Z" fill="#2196F3" stroke="#1565C0" stroke-width="2"/>
+            <path d="M14 24 Q46 34 78 24 M12 34 Q46 45 80 34 M15 44 Q46 54 77 44" stroke="#1565C0" stroke-width="2" fill="none" opacity="0.6"/>
+            <ellipse cx="46" cy="16" rx="34" ry="8" fill="#1F112D" opacity="0.35"/>
+          </svg>
+        </div>
+
+        <!-- Multiplayer Buckets -->
+        <div id="bucketP2" class="bucket-wrap bucket-p2" style="display:none;">
+          <div class="bucket-label">P2</div>
+          <svg class="bucket-svg" viewBox="0 0 92 76" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="46" cy="16" rx="40" ry="12" fill="#E8C27A" stroke="#7A4E2E" stroke-width="2"/>
+            <path d="M9 16 L20 68 Q46 78 72 68 L83 16 Z" fill="#F44336" stroke="#B71C1C" stroke-width="2"/>
+            <ellipse cx="46" cy="16" rx="34" ry="8" fill="#1F112D" opacity="0.35"/>
+          </svg>
+        </div>
+
+        <div id="bucketP3" class="bucket-wrap bucket-p3" style="display:none;">
+          <div class="bucket-label">P3</div>
+          <svg class="bucket-svg" viewBox="0 0 92 76" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="46" cy="16" rx="40" ry="12" fill="#E8C27A" stroke="#7A4E2E" stroke-width="2"/>
+            <path d="M9 16 L20 68 Q46 78 72 68 L83 16 Z" fill="#4CAF50" stroke="#1B5E20" stroke-width="2"/>
+            <ellipse cx="46" cy="16" rx="34" ry="8" fill="#1F112D" opacity="0.35"/>
+          </svg>
+        </div>
+
+        <div id="bucketP4" class="bucket-wrap bucket-p4" style="display:none;">
+          <div class="bucket-label">P4</div>
+          <svg class="bucket-svg" viewBox="0 0 92 76" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="46" cy="16" rx="40" ry="12" fill="#E8C27A" stroke="#7A4E2E" stroke-width="2"/>
+            <path d="M9 16 L20 68 Q46 78 72 68 L83 16 Z" fill="#FF9800" stroke="#E65100" stroke-width="2"/>
+            <ellipse cx="46" cy="16" rx="34" ry="8" fill="#1F112D" opacity="0.35"/>
+          </svg>
+        </div>
+
+        <!-- Overlays -->
+        <div id="startOverlay" class="overlay">
+          <h2>മാങ്ങ പറി</h2>
+          <p>മഞ്ഞ മാങ്ങകളെ ഒഴിഞ്ഞു മാറുക! എന്നാൽ <strong>പറി (പൃഥ്വിരാജ്)</strong> താഴേക്ക് വീഴുമ്പോൾ നിർബന്ധമായും പിടിക്കണം! പറി താഴെ വീണാലോ മാങ്ങ കൊട്ടയിൽ വീണാലോ ഗെയിം ഓവർ!</p>
+          <button class="primaryBtn" id="startBtn">Start Game</button>
+        </div>
+
+        <div id="endOverlay" class="overlay hidden">
+          <h2 id="endTitle">💀 ഔട്ട് ആയി!</h2>
+          <p id="endMsg">ഒരു മാങ്ങ കൊട്ടയിൽ വീണുപോയി!</p>
+          <div class="stats-box">
+            <div class="stat-pill">Score: <span id="finalScore">0</span></div>
+            <div class="stat-pill">Pari Caught: <span id="finalPari">0</span></div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button class="primaryBtn" id="restartBtn">Play Again</button>
+            <button class="secondaryBtn" id="endBackMenuBtn">Menu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-screen controls for Single Player -->
+    <div id="controls">
+      <button class="dirBtn" id="leftBtn" aria-label="Move left">⬅️</button>
+      <button class="dirBtn" id="rightBtn" aria-label="Move right">➡️</button>
+    </div>
+    <div id="hint">Tip: ടച്ച് സ്ക്രീനിലോ മൗസിലോ ഡ്രാഗ് ചെയ്ത് കൊട്ട വേഗത്തിൽ ചലിപ്പിക്കാം. കീബോർഡിൽ Arrow keys അല്ലെങ്കിൽ A / D ഉപയോഗിക്കാം.</div>
+  </div>
+
+  <!-- Rules modal -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-card">
+      <h2>📜 കളി നിയമങ്ങൾ (Rules)</h2>
+      <img src="assets/rules.png" alt="Game Rules" class="modal-rules-img">
+      <div class="rules-detail-list">
+        <div class="rules-detail-item">
+          <div class="icon">🥭❌</div>
+          <div><strong>മാങ്ങ കൊട്ടയിൽ വീഴരുത്:</strong> ഒരു മാങ്ങ പോലും കൊട്ടയിൽ വീഴാതെ ഒഴിഞ്ഞു മാറുക. മാങ്ങ കൊട്ടയിൽ വീണാൽ ഉടൻ ഔട്ട് ആകും!</div>
+        </div>
+        <div class="rules-detail-item">
+          <div class="icon">🧔✔️</div>
+          <div><strong>പറി വീഴുമ്പോൾ പിടിക്കുക:</strong> മാങ്ങകൾക്കിടയിൽ പറി (പൃഥ്വിരാജ്) താഴേക്ക് ചാടും. അവനെ കൃത്യമായി കൊട്ടയിൽ പിടിക്കണം!</div>
+        </div>
+        <div class="rules-detail-item">
+          <div class="icon">🔊🎉</div>
+          <div><strong>"പറി!" ശബ്ദം:</strong> പറി കൊട്ടയിൽ വീഴുമ്പോൾ യഥാർത്ഥ "പറി!" ഓഡിയോ പ്ലേ ആകും കൂടാതെ +100 ബോണസ് പോയിന്റും ലഭിക്കും!</div>
+        </div>
+        <div class="rules-detail-item">
+          <div class="icon">⚠️💀</div>
+          <div><strong>പറി മിസ്സ് ആയാൽ ഔട്ട്:</strong> പറി കൊട്ടയിൽ കൊള്ളാതെ താഴെ മണ്ണിൽ വീണാൽ കളി ഉടൻ തീരും!</div>
+        </div>
+      </div>
+      <button class="primaryBtn" id="closeRulesBtn" style="padding:10px 32px;">ശരി, മനസ്സിലായി! (Close)</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Optimized Difficulty Configuration (starts relaxed, ramps slowly and smoothly)
+  const CONFIG = {
+    speedStart: 135,         // Relaxed initial drop speed
+    speedMax: 480,           // Fast but fair ceiling
+    spawnStart: 950,         // Gentle initial spawn interval
+    spawnMin: 360,           // Balanced fast spawn
+    bucketMoveSpeed: 760,
+    bucketHalfWidth: 38,
+  };
+
+  // DOM Elements
+  const menuScreen = document.getElementById('menuScreen');
+  const idkScreen = document.getElementById('idkScreen');
+  const lobbyScreen = document.getElementById('lobbyScreen');
+  const gameScreen = document.getElementById('gameScreen');
+
+  const btnSinglePlayer = document.getElementById('btnSinglePlayer');
+  const btnMultiplayer = document.getElementById('btnMultiplayer');
+  const btnIdk = document.getElementById('btnIdk');
+  const idkBackMenu = document.getElementById('idkBackMenu');
+  const idkPlaySingle = document.getElementById('idkPlaySingle');
+  const idkPlayMulti = document.getElementById('idkPlayMulti');
+  const lobbyBackMenu = document.getElementById('lobbyBackMenu');
+  const gameBackMenuBtn = document.getElementById('gameBackMenuBtn');
+  const endBackMenuBtn = document.getElementById('endBackMenuBtn');
+
+  const rulesModal = document.getElementById('rulesModal');
+  const openRulesBtn = document.getElementById('openRulesBtn');
+  const closeRulesBtn = document.getElementById('closeRulesBtn');
+  const menuRulesBanner = document.getElementById('menuRulesBanner');
+
+  const stage = document.getElementById('stage');
+  const treeEl = document.getElementById('tree');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const endTitle = document.getElementById('endTitle');
+  const endMsg = document.getElementById('endMsg');
+  const finalScore = document.getElementById('finalScore');
+  const finalPari = document.getElementById('finalPari');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const startMultiMatchBtn = document.getElementById('startMultiMatchBtn');
+
+  const dodgedVal = document.getElementById('dodgedVal');
+  const pariCaughtVal = document.getElementById('pariCaughtVal');
+  const diffVal = document.getElementById('diffVal');
+  const bestVal = document.getElementById('bestVal');
+  const muteBtn = document.getElementById('muteBtn');
+  const controlsDiv = document.getElementById('controls');
+
+  const pariAudioEl = document.getElementById('pariAudio');
+
+  // Buckets: Player 1 is always active by default!
+  const buckets = {
+    1: { el: document.getElementById('bucket'), pct: 50, active: true, eliminated: false, score: 0 },
+    2: { el: document.getElementById('bucketP2'), pct: 25, active: false, eliminated: false, score: 0 },
+    3: { el: document.getElementById('bucketP3'), pct: 75, active: false, eliminated: false, score: 0 },
+    4: { el: document.getElementById('bucketP4'), pct: 85, active: false, eliminated: false, score: 0 },
+  };
+
+  let isMultiplayer = false;
+  let running = false;
+  let elapsed = 0;
+  let dodged = 0;
+  let pariCaught = 0;
+  let nextSpawnIn = 0;
+  let nextPariIn = 2200;
+  let objects = [];
+  let rafId = null;
+  let lastTs = null;
+  let keys = { left:false, right:false };
+  let dragging = false;
+  let lobbyPollingTimer = null;
+  let sseSource = null;
+
+  // Sound & Web Audio BGM Synthesizer + High-Volume Pari Audio Buffer
+  let audioCtx = null;
+  let muted = false;
+  let bgmMasterGain = null;
+  let bgmIntervalId = null;
+  let bgmStep = 0;
+  let pariAudioBuffer = null;
+
+  function initAudio(){
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+        bgmMasterGain = audioCtx.createGain();
+        bgmMasterGain.gain.setValueAtTime(muted ? 0 : 0.12, audioCtx.currentTime);
+        bgmMasterGain.connect(audioCtx.destination);
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // Preload and decode Pari audio into memory for 3x louder playback
+  async function loadPariAudioBuffer(){
+    try {
+      initAudio();
+      if (!audioCtx || pariAudioBuffer) return;
+      const res = await fetch('assets/pari_audio.mp3');
+      const arrayBuf = await res.arrayBuffer();
+      pariAudioBuffer = await audioCtx.decodeAudioData(arrayBuf);
+    } catch(e){}
+  }
+
+  function beep(freq, dur, type, gainPeak){
+    if (muted) return;
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(gainPeak || 0.18, audioCtx.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  }
+
+  function sfxDodge(){ beep(780, 0.1, 'sine', 0.14); }
+  function sfxCatch(){ beep(130, 0.4, 'sawtooth', 0.24); }
+
+  // High-Volume, Crisp & Punchy Pari Voice Playback (Boosted 3.8x with Audio Ducking)
+  function playPariSound(){
+    if (muted) return;
+    initAudio();
+
+    if (audioCtx) {
+      // Audio ducking: lower synth BGM volume temporarily so "പറി!" dialogue is ultra loud & clear
+      if (bgmMasterGain) {
+        try {
+          bgmMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+          bgmMasterGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          bgmMasterGain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.85);
+        } catch(e){}
+      }
+
+      if (pariAudioBuffer) {
+        try {
+          const source = audioCtx.createBufferSource();
+          source.buffer = pariAudioBuffer;
+
+          // Boost gain by 3.8x for loud and punchy dialogue
+          const boostGain = audioCtx.createGain();
+          boostGain.gain.setValueAtTime(3.8, audioCtx.currentTime);
+
+          // Dynamics compressor to maximize volume without harsh digital clipping
+          const comp = audioCtx.createDynamicsCompressor();
+          comp.threshold.setValueAtTime(-2, audioCtx.currentTime);
+          comp.knee.setValueAtTime(4, audioCtx.currentTime);
+          comp.ratio.setValueAtTime(14, audioCtx.currentTime);
+          comp.attack.setValueAtTime(0.001, audioCtx.currentTime);
+          comp.release.setValueAtTime(0.15, audioCtx.currentTime);
+
+          source.connect(boostGain).connect(comp).connect(audioCtx.destination);
+          source.start(0);
+          return;
+        } catch(e){}
+      }
+    }
+
+    // Direct fallback if audio buffer not ready
+    try {
+      pariAudioEl.currentTime = 0;
+      pariAudioEl.volume = 1.0;
+      const playPromise = pariAudioEl.play();
+      if (playPromise && playPromise.catch) playPromise.catch(()=>{});
+    } catch(e){}
+  }
+
+  // Upbeat Tropical BGM Synthesizer
+  const NOTES = {
+    C3: 130.81, D3: 146.83, E3: 164.81, G3: 196.00, A3: 220.00,
+    C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.00, A4: 440.00,
+    C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880.00, C6: 1046.50
+  };
+  const BGM_MELODY = [
+    NOTES.C5, 0, NOTES.E5, NOTES.G5, NOTES.A5, NOTES.G5, NOTES.E5, NOTES.D5,
+    NOTES.C5, NOTES.D5, NOTES.E5, 0, NOTES.G5, NOTES.A5, NOTES.C6, NOTES.A5
+  ];
+  const BGM_BASS = [
+    NOTES.C3, 0, NOTES.G3, 0, NOTES.A3, 0, NOTES.E3, 0,
+    NOTES.D3, 0, NOTES.G3, 0, NOTES.C3, 0, NOTES.G3, 0
+  ];
+
+  function startBgm(){
+    initAudio();
+    stopBgm();
+    bgmStep = 0;
+    const stepTimeMs = 135;
+    bgmIntervalId = setInterval(()=>{
+      if (!running) return;
+      const mNote = BGM_MELODY[bgmStep % BGM_MELODY.length];
+      const bNote = BGM_BASS[bgmStep % BGM_BASS.length];
+
+      if (mNote > 0 && !muted && audioCtx) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(mNote, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.13, audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+        osc.connect(gain).connect(bgmMasterGain);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.22);
+      }
+      if (bNote > 0 && !muted && audioCtx) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(bNote, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.17, audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
+        osc.connect(gain).connect(bgmMasterGain);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      }
+      bgmStep++;
+    }, stepTimeMs);
+  }
+
+  function stopBgm(){
+    if (bgmIntervalId) {
+      clearInterval(bgmIntervalId);
+      bgmIntervalId = null;
+    }
+  }
+
+  muteBtn.addEventListener('click', ()=>{
+    initAudio();
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+    pariAudioEl.muted = muted;
+    if (bgmMasterGain && audioCtx) {
+      bgmMasterGain.gain.setValueAtTime(muted ? 0 : 0.12, audioCtx.currentTime);
+    }
+  });
+
+  // Stage measurement
+  let stageRect = { width: 0, height: 0, left: 0, top: 0 };
+  function measureStage(){
+    const r = stage.getBoundingClientRect();
+    stageRect = { width: r.width, height: r.height, left: r.left, top: r.top };
+  }
+  measureStage();
+  new ResizeObserver(measureStage).observe(stage);
+  window.addEventListener('scroll', measureStage, { passive:true });
+
+  // Tree clusters across wide screen
+  const leafColors = ['var(--leaf-1)','var(--leaf-2)','var(--leaf-3)'];
+  const clusterSpecs = [
+    {l:2, t:4, w:130, h:66}, {l:14, t:0, w:115, h:58}, {l:26, t:6, w:135, h:72},
+    {l:39, t:2, w:120, h:60}, {l:52, t:5, w:130, h:68}, {l:65, t:1, w:120, h:62},
+    {l:77, t:6, w:135, h:70}, {l:89, t:3, w:110, h:54}
+  ];
+  clusterSpecs.forEach((c,i)=>{
+    const d = document.createElement('div');
+    d.className = 'leafCluster';
+    d.style.left = c.l + '%';
+    d.style.top = c.t + 'px';
+    d.style.width = c.w + 'px';
+    d.style.height = c.h + 'px';
+    d.style.background = leafColors[i % leafColors.length];
+    d.style.animationDelay = (i * 0.35) + 's';
+    treeEl.appendChild(d);
+  });
+  [7, 20, 34, 48, 62, 75, 88].forEach((l,i)=>{
+    const m = document.createElement('div');
+    m.className = 'decoMango';
+    m.style.left = l + '%';
+    m.style.top = (30 + (i % 2) * 14) + 'px';
+    m.style.animationDelay = (i * 0.28) + 's';
+    treeEl.appendChild(m);
+  });
+
+  // Screen Switching
+  function showScreen(screenEl){
+    [menuScreen, idkScreen, lobbyScreen, gameScreen].forEach(s => s.classList.remove('active'));
+    screenEl.classList.add('active');
+    measureStage();
+  }
+
+  // Rules Modal
+  function openRules(){ rulesModal.classList.add('active'); }
+  function closeRules(){ rulesModal.classList.remove('active'); }
+  openRulesBtn.addEventListener('click', openRules);
+  menuRulesBanner.addEventListener('click', openRules);
+  closeRulesBtn.addEventListener('click', closeRules);
+  rulesModal.addEventListener('click', (e)=>{ if(e.target === rulesModal) closeRules(); });
+
+  // Clean transition to Single Player (Fixes bug where returning from MP broke collision)
+  function enterSinglePlayerMode(){
+    isMultiplayer = false;
+    if (lobbyPollingTimer) { clearTimeout(lobbyPollingTimer); lobbyPollingTimer = null; }
+    if (sseSource) { sseSource.close(); sseSource = null; }
+
+    // Fully re-enable and reset Player 1
+    buckets[1].active = true;
+    buckets[1].eliminated = false;
+    buckets[1].pct = 50;
+    buckets[1].score = 0;
+    buckets[1].el.classList.remove('eliminated', 'hit', 'catchGood');
+    buckets[1].el.style.display = 'block';
+    buckets[1].el.style.left = '50%';
+
+    for (let id = 2; id <= 4; id++){
+      buckets[id].active = false;
+      buckets[id].eliminated = false;
+      buckets[id].score = 0;
+      buckets[id].el.classList.remove('eliminated', 'hit', 'catchGood');
+      buckets[id].el.style.display = 'none';
+    }
+
+    loadPariAudioBuffer();
+    setupGameMode();
+    showScreen(gameScreen);
+    measureStage();
+  }
+
+  // Menu navigation
+  btnSinglePlayer.addEventListener('click', enterSinglePlayerMode);
+
+  btnMultiplayer.addEventListener('click', ()=>{
+    isMultiplayer = true;
+    loadPariAudioBuffer();
+    showScreen(lobbyScreen);
+    initMultiplayerLobby();
+  });
+
+  btnIdk.addEventListener('click', ()=>{
+    loadPariAudioBuffer();
+    showScreen(idkScreen);
+    playPariSound();
+  });
+
+  idkBackMenu.addEventListener('click', ()=> showScreen(menuScreen));
+  idkPlaySingle.addEventListener('click', enterSinglePlayerMode);
+  idkPlayMulti.addEventListener('click', ()=>{
+    isMultiplayer = true;
+    loadPariAudioBuffer();
+    showScreen(lobbyScreen);
+    initMultiplayerLobby();
+  });
+
+  lobbyBackMenu.addEventListener('click', ()=>{
+    isMultiplayer = false;
+    if (lobbyPollingTimer) { clearTimeout(lobbyPollingTimer); lobbyPollingTimer = null; }
+    if (sseSource) { sseSource.close(); sseSource = null; }
+    buckets[1].active = true;
+    buckets[1].eliminated = false;
+    showScreen(menuScreen);
+  });
+
+  gameBackMenuBtn.addEventListener('click', ()=>{
+    running = false;
+    cancelAnimationFrame(rafId);
+    stopBgm();
+    isMultiplayer = false;
+    if (lobbyPollingTimer) { clearTimeout(lobbyPollingTimer); lobbyPollingTimer = null; }
+    if (sseSource) { sseSource.close(); sseSource = null; }
+    buckets[1].active = true;
+    buckets[1].eliminated = false;
+    showScreen(menuScreen);
+  });
+
+  endBackMenuBtn.addEventListener('click', ()=>{
+    isMultiplayer = false;
+    if (lobbyPollingTimer) { clearTimeout(lobbyPollingTimer); lobbyPollingTimer = null; }
+    if (sseSource) { sseSource.close(); sseSource = null; }
+    buckets[1].active = true;
+    buckets[1].eliminated = false;
+    showScreen(menuScreen);
+  });
+
+  // High Score Persistence
+  let best = 0;
+  try {
+    best = parseInt(localStorage.getItem('mangoPariBestScore') || '0', 10);
+    if (isNaN(best)) best = 0;
+  } catch(e){}
+  bestVal.textContent = best;
+
+  function setBucketPct(pId, pct){
+    const b = buckets[pId];
+    if (!b) return;
+    b.pct = Math.max(5, Math.min(95, pct));
+    b.el.style.left = b.pct + '%';
+  }
+
+  // Setup game mode: strictly resets Player 1 bucket state in Single Player!
+  function setupGameMode(){
+    if (isMultiplayer) {
+      for (let id = 1; id <= 4; id++){
+        buckets[id].el.style.display = 'block';
+        buckets[id].eliminated = false;
+        buckets[id].score = 0;
+        buckets[id].el.classList.remove('eliminated', 'hit', 'catchGood');
+        const lbl = buckets[id].el.querySelector('.bucket-label');
+        if (lbl) lbl.textContent = `P${id}: 0`;
+      }
+      controlsDiv.style.display = 'none';
+    } else {
+      buckets[1].el.style.display = 'block';
+      buckets[2].el.style.display = 'none';
+      buckets[3].el.style.display = 'none';
+      buckets[4].el.style.display = 'none';
+      controlsDiv.style.display = 'flex';
+      setBucketPct(1, 50);
+
+      const lbl = buckets[1].el.querySelector('.bucket-label');
+      if (lbl) lbl.textContent = 'P1';
+
+      // ALWAYS ENSURE PLAYER 1 IS ACTIVE AND ALIVE FOR SINGLE PLAYER
+      buckets[1].active = true;
+      buckets[1].eliminated = false;
+      buckets[1].score = 0;
+      buckets[1].el.classList.remove('eliminated', 'hit', 'catchGood');
+      buckets[2].active = false;
+      buckets[3].active = false;
+      buckets[4].active = false;
+    }
+  }
+
+  // Smooth, gradual difficulty curve
+  function getDifficultyMultiplier(){
+    const timeProgress = elapsed * 0.008;
+    const scoreProgress = (dodged * 0.007) + (pariCaught * 0.015);
+    return 1.0 + Math.min(2.2, timeProgress + scoreProgress);
+  }
+
+  function currentSpeed(){
+    const diff = getDifficultyMultiplier();
+    const spd = CONFIG.speedStart * Math.pow(diff, 0.52);
+    return Math.min(CONFIG.speedMax, spd);
+  }
+
+  function currentSpawnGap(){
+    const diff = getDifficultyMultiplier();
+    const gap = CONFIG.spawnStart / Math.pow(diff, 0.45);
+    return Math.max(CONFIG.spawnMin, gap);
+  }
+
+  // Authentic Ripe Yellow Kerala Mango SVG
+  function createMangoSvg(){
+    return `
+      <svg viewBox="0 0 52 66" class="mango-svg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mYellowGrad" x1="15%" y1="10%" x2="85%" y2="90%">
+            <stop offset="0%" stop-color="#FFFDE7"/>
+            <stop offset="20%" stop-color="#FFEE58"/>
+            <stop offset="55%" stop-color="#FFEB3B"/>
+            <stop offset="85%" stop-color="#FFD600"/>
+            <stop offset="100%" stop-color="#FFC107"/>
+          </linearGradient>
+          <radialGradient id="mLeafGrad" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#81C784"/>
+            <stop offset="100%" stop-color="#2E7D32"/>
+          </radialGradient>
+        </defs>
+        <!-- Wooden Stem -->
+        <path d="M 26 10 Q 28 3 24 1 Q 21 2 23 10 Z" fill="#5D4037"/>
+        <!-- Fresh Green Leaf -->
+        <path d="M 26 8 Q 42 2 46 14 Q 37 16 26 8 Z" fill="url(#mLeafGrad)" stroke="#1B5E20" stroke-width="0.8"/>
+        <path d="M 26 8 Q 36 10 44 14" stroke="#C8E6C9" stroke-width="0.7" fill="none"/>
+        <!-- Curved Ripe Golden Yellow Mango Body -->
+        <path d="M 27 9 C 40 10, 50 20, 51 33 C 52 46, 43 59, 33 65 C 29 67.5, 24 67.5, 20 64 C 12 58, 7 45, 7 31 C 7 17, 16 9, 27 9 Z" fill="url(#mYellowGrad)" stroke="#E5A100" stroke-width="0.8"/>
+        <!-- Glossy Highlight Curve -->
+        <path d="M 16 18 Q 11 30 15 42 Q 13 32 17 22 Z" fill="#FFFFFF" opacity="0.5"/>
+      </svg>
+    `;
+  }
+
+  // Safe non-overlapping spawn coordinate system
+  // Guarantees Pari and Mangoes never spawn in the same lane or collide together
+  function findSafeMangoX(){
+    const activeParis = objects.filter(o => o.type === 'pari' && !o.resolved && o.y < stageRect.height * 0.88);
+    if (activeParis.length === 0){
+      return 6 + Math.random() * 88;
+    }
+
+    // Try finding candidate outside all active Paris' safe corridor (>= 23% separation)
+    for (let i = 0; i < 30; i++){
+      const candidateX = 6 + Math.random() * 88;
+      const tooClose = activeParis.some(p => Math.abs(candidateX - p.xPct) < 23);
+      if (!tooClose){
+        return candidateX;
+      }
+    }
+
+    // Deterministic fallback: place on the opposite side of Pari
+    const avgPariX = activeParis.reduce((sum, p) => sum + p.xPct, 0) / activeParis.length;
+    return avgPariX > 50 ? (6 + Math.random() * 20) : (74 + Math.random() * 20);
+  }
+
+  function findSafePariX(avoidX = null){
+    const activeMangoes = objects.filter(o => o.type === 'mango' && !o.resolved && o.y < stageRect.height * 0.75);
+    const activeParis = objects.filter(o => o.type === 'pari' && !o.resolved);
+
+    let bestX = 12 + Math.random() * 76;
+    let maxClearance = -1;
+
+    for (let i = 0; i < 28; i++){
+      const candidateX = 10 + Math.random() * 80;
+      let minDistance = 100;
+
+      for (const m of activeMangoes){
+        const dist = Math.abs(candidateX - m.xPct);
+        if (dist < minDistance) minDistance = dist;
+      }
+      for (const p of activeParis){
+        const dist = Math.abs(candidateX - p.xPct);
+        if (dist < minDistance) minDistance = dist;
+      }
+      if (avoidX !== null){
+        const dist = Math.abs(candidateX - avoidX);
+        if (dist < minDistance) minDistance = dist;
+      }
+
+      // Safe clearance found: at least 23% horizontal buffer from all mangoes
+      if (minDistance >= 23){
+        return candidateX;
+      }
+
+      if (minDistance > maxClearance){
+        maxClearance = minDistance;
+        bestX = candidateX;
+      }
+    }
+
+    return bestX;
+  }
+
+  // Spawn Mango in a safe corridor
+  function spawnMango(){
+    const el = document.createElement('div');
+    el.className = 'mango-wrapper';
+    el.innerHTML = createMangoSvg();
+
+    const xPct = findSafeMangoX();
+    el.style.left = xPct + '%';
+    stage.appendChild(el);
+
+    // If Pari is falling, ensure mango drifts AWAY from Pari's corridor
+    const activeParis = objects.filter(o => o.type === 'pari' && !o.resolved && o.y < stageRect.height * 0.88);
+    let vx = 0;
+    if (activeParis.length > 0) {
+      const nearestPari = activeParis.reduce((prev, curr) => Math.abs(curr.xPct - xPct) < Math.abs(prev.xPct - xPct) ? curr : prev);
+      const dirAway = xPct < nearestPari.xPct ? -1 : 1;
+      vx = dirAway * (4 + Math.random() * 8);
+    } else {
+      const driftRange = dodged > 20 ? Math.min(38, (dodged - 20) * 0.75) : 0;
+      vx = (Math.random() - 0.5) * driftRange;
+    }
+
+    const spd = currentSpeed() * (0.94 + Math.random() * 0.16);
+
+    objects.push({
+      type: 'mango',
+      el,
+      xPct,
+      y: -66,
+      vx,
+      speed: spd,
+      height: 64,
+      resolved: false,
+      rot: Math.random() * 24 - 12
+    });
+  }
+
+  function spawnSinglePari(xPct){
+    const el = document.createElement('div');
+    el.className = 'pari-container';
+    el.style.left = xPct + '%';
+
+    // Clean, tag-free circular portrait with golden glow
+    el.innerHTML = `
+      <div class="pari-card">
+        <img src="assets/pari.png" class="pari-face" alt="Pari" onerror="this.src='assets/pari.png'">
+      </div>
+    `;
+    stage.appendChild(el);
+
+    const spd = Math.min(230, 140 + elapsed * 1.0);
+
+    objects.push({
+      type: 'pari',
+      el,
+      xPct,
+      y: -74,
+      vx: 0, // Fall straight down so player can catch safely without unpredictable lane drifts
+      speed: spd,
+      height: 72,
+      resolved: false,
+      rot: 0
+    });
+  }
+
+  // Spawn Pari (With Increased Spawn Rate & Multi-Drops in Multiplayer!)
+  function spawnPari(){
+    const x1 = findSafePariX();
+    spawnSinglePari(x1);
+
+    // Buffer: give player clear time to focus on Pari
+    nextSpawnIn = Math.max(nextSpawnIn, 550);
+
+    // IN MULTIPLAYER: Spawn more Pari and frequent double-drops so players can score easily!
+    if (isMultiplayer) {
+      // 45% chance of second Pari dropping in a separate lane for simultaneous multiplayer catches
+      const activePlayers = [1,2,3,4].filter(id => buckets[id].active && !buckets[id].eliminated).length;
+      if (activePlayers >= 2 && Math.random() < 0.45) {
+        setTimeout(() => {
+          if (!running) return;
+          const x2 = findSafePariX(x1);
+          if (Math.abs(x2 - x1) >= 26) {
+            spawnSinglePari(x2);
+          }
+        }, 340);
+      }
+
+      // Fast multiplayer spawn interval: 1.8s - 3.2s so players get scores easily!
+      nextPariIn = 1800 + Math.random() * 1400;
+    } else {
+      // Balanced single player interval: 3.5s - 5.5s
+      nextPariIn = 3500 + Math.random() * 2000;
+    }
+  }
+
+  function spawnWave(){
+    spawnMango();
+    if (dodged > 25 && Math.random() < 0.18) {
+      setTimeout(()=> { if (running) spawnMango(); }, 180);
+    }
+    if (dodged > 55 && Math.random() < 0.22) {
+      setTimeout(()=> { if (running) spawnMango(); }, 280);
+    }
+  }
+
+  function showPariPopup(xPct, yPx){
+    const popup = document.createElement('div');
+    popup.className = 'pari-popup';
+    popup.textContent = '🔥 പറി! +100';
+    popup.style.left = xPct + '%';
+    popup.style.top = yPx + 'px';
+    stage.appendChild(popup);
+    setTimeout(()=> popup.remove(), 850);
+  }
+
+  function spawnParticles(xPct, type){
+    const count = type === 'pari' ? 18 : 8;
+    for (let i=0; i<count; i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = (type === 'pari' ? 8 : 6) + Math.random() * 6;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = xPct + '%';
+      p.style.bottom = '18%';
+      p.style.background = type === 'pari' ? '#FFD166' : (type === 'dodge' ? '#4CAF50' : '#E63946');
+      if (type === 'pari') p.style.boxShadow = '0 0 12px #FFD166';
+      const angle = Math.random() * Math.PI * 2;
+      const dist = (type === 'pari' ? 55 : 32) + Math.random() * 45;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - 26;
+      p.animate([
+        { transform:'translate(0,0)', opacity:1 },
+        { transform:`translate(${dx}px, ${dy}px)`, opacity:0 }
+      ], { duration: 550 + Math.random() * 250, easing:'ease-out' });
+      stage.appendChild(p);
+      setTimeout(()=> p.remove(), 800);
+    }
+  }
+
+  // Exact Top Opening Rim and Bottom of the bucket
+  function bucketBoundsPx(){
+    const bottomOffset = stageRect.height * 0.08;
+    const bBottom = stageRect.height - bottomOffset;
+    const bRim = bBottom - 76; // top opening rim of the 78px bucket
+    return { rim: bRim, bottom: bBottom };
+  }
+  function bucketTopRimPx(){
+    return bucketBoundsPx().rim;
+  }
+
+  // Main Game Loop
+  function update(ts){
+    if (!running) return;
+    if (lastTs == null) lastTs = ts;
+    const dt = Math.min(ts - lastTs, 50);
+    lastTs = ts;
+    const dtS = dt / 1000;
+
+    elapsed += dtS;
+
+    // Measurement safety check
+    if (!stageRect.width || !stageRect.height) {
+      measureStage();
+      if (!stageRect.width || !stageRect.height) {
+        rafId = requestAnimationFrame(update);
+        return;
+      }
+    }
+
+    // In single player, Player 1 bucket is ALWAYS strictly active and alive
+    if (!isMultiplayer) {
+      buckets[1].active = true;
+      buckets[1].eliminated = false;
+    }
+
+    const currentMult = getDifficultyMultiplier();
+    diffVal.textContent = currentMult.toFixed(1) + 'x';
+
+    // Single player keyboard movement
+    if (!isMultiplayer){
+      let move = 0;
+      if (keys.left) move -= 1;
+      if (keys.right) move += 1;
+      if (move !== 0 && !dragging){
+        const pctPerMs = (CONFIG.bucketMoveSpeed / stageRect.width) * 100 / 1000;
+        setBucketPct(1, buckets[1].pct + move * pctPerMs * dt);
+      }
+    }
+
+    // Spawn mangoes
+    nextSpawnIn -= dt;
+    if (nextSpawnIn <= 0){
+      spawnWave();
+      nextSpawnIn = currentSpawnGap() * (0.85 + Math.random() * 0.35);
+    }
+
+    // Spawn Pari
+    nextPariIn -= dt;
+    if (nextPariIn <= 0){
+      spawnPari();
+    }
+
+    const bBounds = bucketBoundsPx();
+    const bRimY = bBounds.rim;
+    const bBottomY = bBounds.bottom;
+
+    // Loop through falling objects
+    for (const obj of objects.slice()){
+      obj.y += obj.speed * dtS;
+
+      if (obj.vx) {
+        const dxPct = (obj.vx * dtS / stageRect.width) * 100;
+        let targetXPct = obj.xPct + dxPct;
+        if (obj.type === 'mango') {
+          // If mango is drifting close to an active Pari, bounce away to preserve Pari's corridor
+          const activeParis = objects.filter(o => o.type === 'pari' && !o.resolved && Math.abs(o.y - obj.y) < 180);
+          for (const p of activeParis) {
+            if (Math.abs(targetXPct - p.xPct) < 22) {
+              obj.vx = -obj.vx;
+              targetXPct = obj.xPct;
+              break;
+            }
+          }
+        }
+        obj.xPct = Math.max(3, Math.min(97, targetXPct));
+        obj.el.style.left = obj.xPct + '%';
+      }
+
+      // Preserve horizontal centering (-50%) while translating Y
+      if (obj.type === 'mango') {
+        obj.el.style.transform = `translate3d(-50%, ${obj.y}px, 0) rotate(${obj.rot + obj.y * 0.25}deg)`;
+      } else {
+        obj.el.style.transform = `translate3d(-50%, ${obj.y}px, 0)`;
+      }
+
+      const objCenterPx = stageRect.width * (obj.xPct / 100);
+      const objBottomY = obj.y + obj.height;
+
+      // Active player list
+      const activePlayerIds = isMultiplayer ? [1, 2, 3, 4] : [1];
+
+      for (const pId of activePlayerIds){
+        const b = buckets[pId];
+
+        // GUARANTEE: In single player, Player 1 bucket is ALWAYS active and never ignored!
+        if (!isMultiplayer && pId === 1) {
+          b.active = true;
+          b.eliminated = false;
+        }
+
+        if (!b || !b.active || b.eliminated) continue;
+
+        const bCenterPx = stageRect.width * (b.pct / 100);
+        // Generous catch tolerance for Pari (62px) and precise dodge tolerance for Mango (44px)
+        const catchTolerance = obj.type === 'pari' ? 62 : 44;
+        const horizontalOverlap = Math.abs(objCenterPx - bCenterPx) < catchTolerance;
+
+        // CATCH/HIT TRIGGERS IMMEDIATELY AT TOP RIM OF BUCKET AND THROUGHOUT BUCKET DEPTH
+        // (No ghosting through or overlapping without collision!)
+        const verticalOverlap = (objBottomY >= bRimY) && (obj.y <= bBottomY);
+
+        if (!obj.resolved && verticalOverlap && horizontalOverlap){
+          obj.resolved = true;
+          if (obj.type === 'mango'){
+            eliminatePlayer(pId, 'mango');
+            obj.el.remove();
+            objects = objects.filter(x => x !== obj);
+            return;
+          } else if (obj.type === 'pari'){
+            catchPari(pId, obj);
+            obj.el.remove();
+            objects = objects.filter(x => x !== obj);
+            break;
+          }
+        }
+      }
+
+      // Object reached bottom of stage
+      if (obj.y > stageRect.height + 20){
+        if (obj.type === 'mango'){
+          if (!obj.resolved){
+            dodged++;
+            dodgedVal.textContent = dodged;
+            sfxDodge();
+            spawnParticles(obj.xPct, 'dodge');
+          }
+        } else if (obj.type === 'pari'){
+          if (!obj.resolved){
+            missedPari();
+            if (!isMultiplayer) return;
+          }
+        }
+        obj.el.remove();
+        objects = objects.filter(x => x !== obj);
+      }
+    }
+
+    rafId = requestAnimationFrame(update);
+  }
+
+  function catchPari(pId, obj){
+    pariCaught++;
+    pariCaughtVal.textContent = pariCaught;
+    playPariSound();
+    showPariPopup(obj.xPct, bucketTopRimPx() - 20);
+    spawnParticles(obj.xPct, 'pari');
+
+    const b = buckets[pId];
+    if (b) {
+      b.score += 100;
+      b.el.classList.add('catchGood');
+      setTimeout(()=> b.el.classList.remove('catchGood'), 350);
+
+      const labelEl = b.el.querySelector('.bucket-label');
+      if (labelEl) {
+        labelEl.textContent = isMultiplayer ? `P${pId}: ${b.score}` : 'P1';
+      }
+    }
+  }
+
+  function eliminatePlayer(pId, reason){
+    const b = buckets[pId];
+    if (b) {
+      b.eliminated = true;
+      b.el.classList.add('hit', 'eliminated');
+      spawnParticles(b.pct, 'hit');
+    }
+    sfxCatch();
+
+    if (!isMultiplayer){
+      endGame(false, reason);
+    } else {
+      const remaining = [1,2,3,4].filter(id => buckets[id].active && !buckets[id].eliminated);
+      if (remaining.length === 0){
+        endGame(false, 'all_eliminated');
+      }
+    }
+  }
+
+  function missedPari(){
+    sfxCatch();
+    if (!isMultiplayer){
+      endGame(false, 'missed_pari');
+    } else {
+      // In multiplayer, missing a Pari does NOT end the match; players keep competing!
+      spawnParticles(50, 'dodge');
+    }
+  }
+
+  function endGame(survived, reason){
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    stopBgm();
+
+    const totalScore = dodged + pariCaught * 100;
+    if (totalScore > best){
+      best = totalScore;
+      bestVal.textContent = best;
+      try { localStorage.setItem('mangoPariBestScore', String(best)); } catch(e){}
+    }
+
+    finalScore.textContent = totalScore;
+    finalPari.textContent = pariCaught;
+
+    if (isMultiplayer) {
+      // Find winner with highest score in multiplayer
+      let winnerId = 1;
+      let maxScore = -1;
+      for (let id = 1; id <= 4; id++){
+        if (buckets[id].score > maxScore){
+          maxScore = buckets[id].score;
+          winnerId = id;
+        }
+      }
+      endTitle.textContent = `🏆 Player ${winnerId} ജയിച്ചു! (Winner)`;
+      endMsg.textContent = `Scores -> P1: ${buckets[1].score} | P2: ${buckets[2].score} | P3: ${buckets[3].score} | P4: ${buckets[4].score}`;
+    } else {
+      if (reason === 'missed_pari'){
+        endTitle.textContent = '💀 പറി പോയി! (Missed Pari)';
+        endMsg.textContent = 'പറി കൊട്ടയിൽ കൊള്ളാതെ താഴെ വീണുപോയി! പറി നിർബന്ധമായും പിടിക്കണമായിരുന്നു!';
+      } else if (reason === 'mango'){
+        endTitle.textContent = '💀 മാങ്ങ വീണു! (Caught Mango)';
+        endMsg.textContent = 'ഒരു മാങ്ങ കൊട്ടയിൽ വീണു! നിങ്ങൾ ഔട്ട് ആയി!';
+      } else {
+        endTitle.textContent = '💀 കളി കഴിഞ്ഞു!';
+        endMsg.textContent = `ടോട്ടൽ സ്കോർ: ${totalScore} | പറി പിടിച്ചത്: ${pariCaught}`;
+      }
+    }
+
+    endOverlay.classList.remove('hidden');
+  }
+
+  function startGame(){
+    initAudio();
+    loadPariAudioBuffer();
+    running = true;
+    elapsed = 0;
+    dodged = 0;
+    pariCaught = 0;
+    lastTs = null;
+    nextSpawnIn = 400;
+    nextPariIn = isMultiplayer ? 850 : 2000;
+    dodgedVal.textContent = '0';
+    pariCaughtVal.textContent = '0';
+    diffVal.textContent = '1.0x';
+
+    objects.forEach(o => o.el.remove());
+    objects = [];
+
+    // Reset buckets cleanly
+    if (!isMultiplayer) {
+      buckets[1].active = true;
+      buckets[1].eliminated = false;
+      buckets[1].score = 0;
+      buckets[1].el.classList.remove('eliminated', 'hit');
+      setBucketPct(1, 50);
+
+      for (let id = 2; id <= 4; id++){
+        buckets[id].active = false;
+        buckets[id].eliminated = false;
+        buckets[id].el.classList.remove('eliminated', 'hit');
+      }
+    } else {
+      for (let id = 1; id <= 4; id++){
+        const b = buckets[id];
+        b.eliminated = false;
+        b.score = 0;
+        b.el.classList.remove('eliminated', 'hit');
+      }
+    }
+
+    startOverlay.classList.add('hidden');
+    endOverlay.classList.add('hidden');
+    measureStage();
+    startBgm();
+    rafId = requestAnimationFrame(update);
+  }
+
+  // =========================================================
+  // MULTIPLAYER LOBBY
+  // =========================================================
+  let qrGenerated = false;
+
+  async function initMultiplayerLobby(){
+    let localIp = window.location.hostname || 'localhost';
+    let port = window.location.port || '8080';
+    let controllerUrl = `${window.location.protocol}//${localIp}:${port}/controller.html`;
+
+    try {
+      const res = await fetch('/api/ip');
+      const data = await res.json();
+      if (data.url) controllerUrl = data.url;
+    } catch(e){}
+
+    const qrLinkText = document.getElementById('qrLinkText');
+    qrLinkText.textContent = controllerUrl;
+
+    if (!qrGenerated && typeof QRCode !== 'undefined') {
+      new QRCode(document.getElementById("qrcode"), {
+        text: controllerUrl,
+        width: 170,
+        height: 170,
+        colorDark : "#1F112D",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+      });
+      qrGenerated = true;
+    }
+
+    pollLobbyPlayers();
+  }
+
+  function updateSlotUI(pid, active, name){
+    const slot = document.getElementById('slot' + pid);
+    const status = document.getElementById('slot' + pid + 'Status');
+    if (!slot || !status) return;
+    if (active) {
+      slot.classList.add('connected');
+      status.textContent = 'Connected ✅';
+    } else {
+      slot.classList.remove('connected');
+      status.textContent = 'Waiting...';
+    }
+  }
+
+  async function pollLobbyPlayers(){
+    // Guard: Only poll when actively inside the lobby and in multiplayer mode!
+    if (!lobbyScreen.classList.contains('active') || !isMultiplayer) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/state');
+      const data = await res.json();
+      if (data && data.players && isMultiplayer && lobbyScreen.classList.contains('active')) {
+        for (let pid = 1; pid <= 4; pid++){
+          const p = data.players[pid];
+          const isAct = p && p.active;
+          if (isMultiplayer) {
+            buckets[pid].active = isAct;
+          }
+          updateSlotUI(pid, isAct, p ? p.name : '');
+          if (isAct && p.pos != null) {
+            setBucketPct(pid, p.pos);
+          }
+        }
+      }
+    } catch(e){}
+
+    if (lobbyScreen.classList.contains('active') && isMultiplayer) {
+      lobbyPollingTimer = setTimeout(pollLobbyPlayers, 800);
+    }
+  }
+
+  // SSE Stream for Live Phone Bucket Movement
+  function connectEventStream(){
+    if (sseSource) sseSource.close();
+    try {
+      sseSource = new EventSource('/api/stream');
+      sseSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data && data.players) {
+            for (let pid = 1; pid <= 4; pid++){
+              const p = data.players[pid];
+              if (p && p.pos != null) {
+                setBucketPct(pid, p.pos);
+              }
+            }
+          }
+        } catch(err){}
+      };
+    } catch(e){}
+  }
+
+  startMultiMatchBtn.addEventListener('click', ()=>{
+    isMultiplayer = true;
+    const anyActive = [1, 2, 3, 4].some(id => buckets[id].active);
+    if (!anyActive) {
+      for (let id = 1; id <= 4; id++) {
+        buckets[id].active = true;
+      }
+    }
+    setupGameMode();
+    showScreen(gameScreen);
+    connectEventStream();
+  });
+
+  // Keyboard controls
+  document.addEventListener('keydown', (e)=>{
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+
+    if (isMultiplayer){
+      if (e.key === 'ArrowLeft') setBucketPct(2, buckets[2].pct - 5);
+      if (e.key === 'ArrowRight') setBucketPct(2, buckets[2].pct + 5);
+      if (e.key === 'j' || e.key === 'J') setBucketPct(3, buckets[3].pct - 5);
+      if (e.key === 'l' || e.key === 'L') setBucketPct(3, buckets[3].pct + 5);
+      if (e.key === '4') setBucketPct(4, buckets[4].pct - 5);
+      if (e.key === '6') setBucketPct(4, buckets[4].pct + 5);
+    }
+  });
+  document.addEventListener('keyup', (e)=>{
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+  });
+
+  // Touch buttons
+  function bindHold(btn, key){
+    const set = (v) => (e) => { e.preventDefault(); keys[key] = v; };
+    btn.addEventListener('pointerdown', set(true));
+    btn.addEventListener('pointerup', set(false));
+    btn.addEventListener('pointerleave', set(false));
+    btn.addEventListener('pointercancel', set(false));
+  }
+  bindHold(document.getElementById('leftBtn'), 'left');
+  bindHold(document.getElementById('rightBtn'), 'right');
+
+  // Drag directly on stage
+  function pctFromClientX(clientX){
+    const x = clientX - stageRect.left;
+    return (x / stageRect.width) * 100;
+  }
+  stage.addEventListener('pointerdown', (e)=>{
+    if (!running || isMultiplayer) return;
+    dragging = true;
+    stage.classList.add('dragging');
+    setBucketPct(1, pctFromClientX(e.clientX));
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove', (e)=>{
+    if (!dragging || isMultiplayer) return;
+    setBucketPct(1, pctFromClientX(e.clientX));
+  });
+  function stopDrag(){ dragging = false; stage.classList.remove('dragging'); }
+  stage.addEventListener('pointerup', stopDrag);
+  stage.addEventListener('pointercancel', stopDrag);
+
+  // Pause when tab inactive
+  document.addEventListener('visibilitychange', ()=>{
+    if (document.hidden && running){
+      cancelAnimationFrame(rafId);
+      stopBgm();
+    } else if (!document.hidden && running){
+      lastTs = null;
+      startBgm();
+      rafId = requestAnimationFrame(update);
+    }
+  });
+
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', startGame);
+
+})();
+</script>
+</body>
+</html>

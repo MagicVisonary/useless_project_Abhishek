@@ -1,97 +1,114 @@
 <img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
 
-
-
-# [മാങ്ങ പറി] 🎯
-
+# മാങ്ങ പറി (Mango Pari) 🎯
 
 ## Basic Details
 ### Team Name: MANGO TANGO
 
-
 ### Team Members
-- Team Lead: Abhishek K S - NSS college of engineering palakkad
-
+- Team Lead: Abhishek K S - NSS College of Engineering, Palakkad
 
 ### Project Description
-A game where you avoid catching mangoes but risk your lives to catch pari
+A chaotic, humorous Malayalam arcade web game where players must dodge falling ripe yellow mangoes and risk everything to catch **Pari** (Prithviraj meme) into their bucket! Featuring a Single-Player survival mode and an interactive **4-Player Local Multiplayer Mode** where friends control their buckets from their smartphones via a QR code over local Wi-Fi.
 
 ### The Problem (that doesn't exist)
-Instead of manga parikkal we should focus only on parikkal 
+Instead of traditional *manga parikkal* (mango plucking), human civilization has been lacking an intense, high-stakes system focused solely on *pari parikkal*!
+
 ### The Solution (that nobody asked for)
-The game gives you the opportunity
+"മാങ്ങ പറി" gives you this once-in-a-lifetime opportunity: a high-energy multiplayer game where missing Pari means defeat, touching a mango is instant death, and catching Pari unleashes a thunderous *"പറി!"* voice blast!
+
+---
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- **Languages:** JavaScript (ES6+), HTML5, CSS3, Python 3
+- **Frameworks / APIs:**
+  - **Web Audio API:** Real-time synthesizer, dynamic range compression & 3.8x gain booster for punchy dialogue and BGM sidechain ducking.
+  - **Server-Sent Events (SSE):** Ultra low-latency real-time controller streaming from smartphones to laptop screen at ~60fps.
+  - **Pointer & Touch Events API:** Responsive mobile touch trackpad, swipe controls, Left/Right tap buttons, and optional gyroscope tilt.
+- **Libraries:**
+  - `qrcode.min.js` (Standalone, zero-dependency offline QR code generator)
+- **Tools:**
+  - Visual Studio Code
+  - Python 3 standard library (`http.server`, `socket`, `urllib.parse`)
+  - Git & GitHub
 
 For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- **Laptop / PC:** Acts as the host server and main display screen (runs the game canvas, safe corridor physics, and audio).
+- **Smartphones (1 to 4):** Connected over local Wi-Fi, functioning as wireless gamepad controllers via QR code.
+
+---
 
 ### Implementation
 For Software:
 # Installation
-[commands]
+1. Clone this repository:
+```bash
+git clone https://github.com/Abhishek-ks-04/useless_project_Abhishek.git
+cd useless_project_Abhishek
+```
+2. No external dependencies or `npm install` needed! Everything runs using pure web technologies and Python standard library.
 
 # Run
-[commands]
+Simply double-click:
+```bat
+start_game.bat
+```
+Or run via terminal:
+```bash
+python server.py
+```
+*(On Windows with Python launcher: `py -3 server.py`)*
+
+Then open `http://localhost:8080` on your laptop browser!
+
+---
 
 ### Project Documentation
 For Software:
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+# Screenshots
+![Rules & Menu](assets/rules.png)
+*Main Menu and official game rules of മാങ്ങ പറി*
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+![Pari Character](assets/pari.png)
+*Pari (Prithviraj meme) - The holy grail you must catch!*
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+![Mascot](assets/bucket_mascot.png)
+*The Mango Tango bucket mascot*
 
 # Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
+```text
++------------------+         Local Wi-Fi          +---------------------+
+|  Player Phone 1  | ---------------------------> |                     |
+| (controller.html)|        HTTP POST /move       |                     |
++------------------+                              |                     |
+                                                  |    Laptop Screen    |
++------------------+                              |    (index.html)     |
+|  Player Phone 2  | ---------------------------> |                     |
+| (controller.html)|                              | Real-time Canvas    |
++------------------+                              | 4 Dynamic Buckets   |
+                                                  | Web Audio BGM & SFX |
++------------------+                              |                     |
+|  Player Phone 3  | ---------------------------> |                     |
+| (controller.html)|        SSE Live Stream       |                     |
++------------------+    <------------------------ |    Python Server    |
+                             (/api/stream)        |     (server.py)     |
++------------------+                              |                     |
+|  Player Phone 4  | ---------------------------> |                     |
+| (controller.html)|                              +---------------------+
++------------------+
+```
+*Architecture workflow: Phones act as wireless gamepads streaming inputs to the laptop game over local Wi-Fi via SSE.*
 
 ### Project Demo
 # Video
 [Add your demo video link here]
-*Explain what the video demonstrates*
-
-# Additional Demos
-[Add any extra demo materials/links]
-
+*Demonstrates live gameplay: dodging mangoes, catching Pari with audio blast, and 4-player smartphone multiplayer action.*
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
 
 ![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
 ![Static Badge](https://img.shields.io/badge/UselessProjects--26-26?link=https%3A%2F%2Ftinkerhub.org%2Fevents%2F1M8ORET9A1%2Fuseless-projects-3.0)
-
-
-

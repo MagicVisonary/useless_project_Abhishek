@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>മാങ്ങ പറി - Phone Controller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --p-color: #2196F3;
+    --bg-dark: #140924;
+    --text-color: #FFF5E4;
+  }
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    margin:0; padding:0;
+  }
+  body{
+    min-height:100svh;
+    background: radial-gradient(circle at 50% 15%, #2D1645 0%, var(--bg-dark) 85%);
+    font-family:'Nunito', system-ui, sans-serif;
+    color:var(--text-color);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 14px 20px;
+    touch-action:none;
+    overflow:hidden;
+  }
+
+  header{
+    width:100%;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  h1{
+    font-family:'Anek Malayalam', sans-serif;
+    font-size:24px;
+    font-weight:800;
+    color:#FFD166;
+  }
+  .player-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,0.1);
+    border:2px solid var(--p-color);
+    padding:6px 20px;
+    border-radius:999px;
+    font-size:17px;
+    font-weight:800;
+    box-shadow:0 0 16px rgba(0,0,0,0.4), inset 0 0 10px var(--p-color);
+    transition:border-color 0.3s, box-shadow 0.3s;
+  }
+  .player-dot{
+    width:14px; height:14px;
+    border-radius:50%;
+    background:var(--p-color);
+    box-shadow:0 0 8px var(--p-color);
+  }
+
+  /* Status message */
+  #connStatus{
+    font-size:12px;
+    color:#B9A6D6;
+    font-weight:700;
+  }
+
+  /* Big Touch Trackpad */
+  #touchArea{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    height:46vh;
+    min-height:220px;
+    background:rgba(255,255,255,0.05);
+    border:2px dashed rgba(255,255,255,0.2);
+    border-radius:24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    box-shadow:inset 0 0 24px rgba(0,0,0,0.5);
+    cursor:grab;
+    touch-action:none;
+  }
+  #touchArea:active{
+    background:rgba(255,255,255,0.08);
+    border-color:var(--p-color);
+  }
+
+  /* Visual Slider Bar */
+  .slider-guide{
+    position:absolute;
+    bottom:20px;
+    left:24px; right:24px;
+    height:14px;
+    background:rgba(255,255,255,0.12);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .slider-thumb{
+    position:absolute;
+    top:0;
+    width:36px; height:14px;
+    background:var(--p-color);
+    border-radius:999px;
+    transform:translateX(-50%);
+    box-shadow:0 0 10px var(--p-color);
+    transition:left 0.05s ease-out;
+  }
+
+  .bucket-icon{
+    font-size:52px;
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,0.5));
+    animation:float 3s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-6px); }
+  }
+
+  .hint-text{
+    font-size:14px;
+    color:#DECFF3;
+    font-weight:700;
+    text-align:center;
+    max-width:260px;
+    pointer-events:none;
+  }
+
+  /* Bottom Arrow Buttons */
+  #btnRow{
+    width:100%;
+    max-width:420px;
+    display:flex;
+    gap:16px;
+    justify-content:space-between;
+  }
+  .ctrl-btn{
+    flex:1;
+    height:72px;
+    border-radius:20px;
+    border:none;
+    background:radial-gradient(circle at 40% 30%, rgba(255,255,255,0.2), rgba(0,0,0,0.3)), var(--p-color);
+    color:#FFF;
+    font-size:32px;
+    font-weight:900;
+    box-shadow:0 6px 0 rgba(0,0,0,0.4), 0 8px 18px rgba(0,0,0,0.4);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.06s ease, filter 0.1s;
+    touch-action:manipulation;
+  }
+  .ctrl-btn:active{
+    transform:translateY(4px);
+    box-shadow:0 2px 0 rgba(0,0,0,0.4);
+    filter:brightness(1.15);
+  }
+
+  /* Secondary controls */
+  #footer{
+    display:flex;
+    gap:10px;
+    width:100%;
+    max-width:420px;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .small-btn{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.18);
+    color:#DECFF3;
+    padding:8px 14px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .small-btn.active{
+    background:var(--p-color);
+    color:#FFF;
+    border-color:transparent;
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <h1>🥭 മാങ്ങ പറി</h1>
+    <div class="player-badge" id="playerBadge">
+      <div class="player-dot" id="playerDot"></div>
+      <span id="playerText">Connecting...</span>
+    </div>
+    <div id="connStatus">Searching for game...</div>
+  </header>
+
+  <div id="touchArea">
+    <div class="bucket-icon">🪣</div>
+    <div class="hint-text">ഇവിടെ വിരൽ തൊട്ട് ഇടത്തോട്ടും വലത്തോട്ടും ഡ്രാഗ് ചെയ്യുക</div>
+    <div class="slider-guide">
+      <div class="slider-thumb" id="sliderThumb" style="left:50%;"></div>
+    </div>
+  </div>
+
+  <div id="btnRow">
+    <button class="ctrl-btn" id="btnLeft" aria-label="Move Left">⬅️</button>
+    <button class="ctrl-btn" id="btnRight" aria-label="Move Right">➡️</button>
+  </div>
+
+  <div id="footer">
+    <button class="small-btn" id="tiltBtn">📱 Tilt Control: OFF</button>
+    <button class="small-btn" id="reconnectBtn">🔄 Rejoin</button>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  const PLAYER_COLORS = {
+    1: '#2196F3', // Blue
+    2: '#F44336', // Red
+    3: '#4CAF50', // Green
+    4: '#FF9800'  // Gold/Orange
+  };
+
+  let playerId = null;
+  let playerColor = '#2196F3';
+  let bucketPos = 50.0; // 0 - 100
+  let isDragging = false;
+  let tiltEnabled = false;
+  let lastSentTs = 0;
+  let moveInterval = null;
+
+  const playerBadge = document.getElementById('playerBadge');
+  const playerDot = document.getElementById('playerDot');
+  const playerText = document.getElementById('playerText');
+  const connStatus = document.getElementById('connStatus');
+  const touchArea = document.getElementById('touchArea');
+  const sliderThumb = document.getElementById('sliderThumb');
+  const btnLeft = document.getElementById('btnLeft');
+  const btnRight = document.getElementById('btnRight');
+  const tiltBtn = document.getElementById('tiltBtn');
+  const reconnectBtn = document.getElementById('reconnectBtn');
+
+  function setPlayerUI(pid, color, name){
+    playerId = pid;
+    playerColor = color || PLAYER_COLORS[pid] || '#2196F3';
+    document.documentElement.style.setProperty('--p-color', playerColor);
+    playerDot.style.background = playerColor;
+    playerText.textContent = name || `Player ${pid}`;
+    connStatus.textContent = `Connected as Player ${pid} • Live`;
+    connStatus.style.color = '#70E000';
+  }
+
+  function setBucketPos(val){
+    bucketPos = Math.max(5, Math.min(95, val));
+    sliderThumb.style.left = bucketPos + '%';
+    sendMove(bucketPos);
+  }
+
+  // Throttle network movement to 45Hz
+  function sendMove(pos){
+    const now = performance.now();
+    if (now - lastSentTs < 22) return;
+    lastSentTs = now;
+
+    if (!playerId) return;
+
+    fetch('/api/move', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player: playerId, pos: pos })
+    }).catch(()=>{});
+  }
+
+  // Connect to game server
+  async function joinGame(){
+    connStatus.textContent = 'Connecting to game...';
+    connStatus.style.color = '#FFD166';
+    try {
+      const res = await fetch('/api/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Phone ' + Math.floor(Math.random()*100) })
+      });
+      const data = await res.json();
+      if (data.success && data.player) {
+        setPlayerUI(data.player, data.color, data.name);
+        try { navigator.vibrate(60); } catch(e){}
+      } else {
+        connStatus.textContent = 'Game Full (Max 4 Players)';
+        connStatus.style.color = '#E63946';
+      }
+    } catch(err){
+      connStatus.textContent = 'Server offline or connecting...';
+      connStatus.style.color = '#FF9800';
+      setTimeout(joinGame, 3000);
+    }
+  }
+
+  // Touch area drag handling
+  function handleTouch(clientX){
+    const rect = touchArea.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const pct = (x / rect.width) * 100;
+    setBucketPos(pct);
+  }
+
+  touchArea.addEventListener('pointerdown', (e)=>{
+    isDragging = true;
+    touchArea.setPointerCapture(e.pointerId);
+    handleTouch(e.clientX);
+  });
+  touchArea.addEventListener('pointermove', (e)=>{
+    if (!isDragging) return;
+    handleTouch(e.clientX);
+  });
+  function stopDrag(){ isDragging = false; }
+  touchArea.addEventListener('pointerup', stopDrag);
+  touchArea.addEventListener('pointercancel', stopDrag);
+
+  // Left / Right Hold Buttons
+  function bindHold(btn, dir){
+    let stepTimer = null;
+    const start = (e) => {
+      e.preventDefault();
+      try { navigator.vibrate(20); } catch(e){}
+      setBucketPos(bucketPos + dir * 3.5);
+      clearInterval(stepTimer);
+      stepTimer = setInterval(()=>{
+        setBucketPos(bucketPos + dir * 3.0);
+      }, 35);
+    };
+    const stop = () => { clearInterval(stepTimer); };
+
+    btn.addEventListener('pointerdown', start);
+    btn.addEventListener('pointerup', stop);
+    btn.addEventListener('pointerleave', stop);
+    btn.addEventListener('pointercancel', stop);
+  }
+  bindHold(btnLeft, -1);
+  bindHold(btnRight, 1);
+
+  // Motion Tilt control (Gyroscope)
+  tiltBtn.addEventListener('click', async ()=>{
+    if (!tiltEnabled) {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const perm = await DeviceOrientationEvent.requestPermission();
+          if (perm !== 'granted') return;
+        } catch(e){}
+      }
+      tiltEnabled = true;
+      tiltBtn.textContent = '📱 Tilt Control: ON';
+      tiltBtn.classList.add('active');
+      window.addEventListener('deviceorientation', handleOrientation);
+    } else {
+      tiltEnabled = false;
+      tiltBtn.textContent = '📱 Tilt Control: OFF';
+      tiltBtn.classList.remove('active');
+      window.removeEventListener('deviceorientation', handleOrientation);
+    }
+  });
+
+  function handleOrientation(e){
+    if (!tiltEnabled || e.gamma == null) return;
+    // gamma is left-to-right tilt in degrees (-90 to +90)
+    const tilt = Math.max(-30, Math.min(30, e.gamma));
+    const targetPct = 50 + (tilt / 30) * 45;
+    setBucketPos(targetPct);
+  }
+
+  reconnectBtn.addEventListener('click', joinGame);
+
+  // Keep-alive heartbeat every 4 seconds
+  setInterval(()=>{
+    if (playerId) {
+      fetch('/api/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player: playerId, pos: bucketPos })
+      }).catch(()=>{});
+    }
+  }, 4000);
+
+  // Initial join
+  joinGame();
+
+})();
+</script>
+</body>
+</html>
