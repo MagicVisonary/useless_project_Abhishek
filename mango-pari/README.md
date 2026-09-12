@@ -2,11 +2,17 @@
 
 # മാങ്ങ പറി (Mango Pari) 🎯
 
+[![Live Game Demo](https://img.shields.io/badge/🎮_Play_Live-Game_Demo_(One--Click)-FFD700?style=for-the-badge&logo=google-chrome&logoColor=black)](https://magicvisonary.github.io/useless_project_Abhishek/)
+[![TinkerHub](https://img.shields.io/badge/TinkerHub-Useless_Projects_3.0-00C853?style=for-the-badge&link=https%3A%2F%2Ftinkerhub.org%2Fevents%2F1M8ORET9A1%2Fuseless-projects-3.0)](https://tinkerhub.org/events/1M8ORET9A1/useless-projects-3.0)
+
 ## Basic Details
 ### Team Name: MANGO TANGO
 
 ### Team Members
 - Team Lead: Abhishek K S - NSS College of Engineering, Palakkad
+
+### Hosted Project Link
+🚀 **[Play Live on GitHub Pages (One-Click Link)](https://magicvisonary.github.io/useless_project_Abhishek/)**
 
 ### Project Description
 A chaotic, humorous Malayalam arcade web game where players must dodge falling ripe yellow mangoes and risk everything to catch **Pari** (Prithviraj meme) into their bucket! Featuring a Single-Player survival mode and an interactive **4-Player Local Multiplayer Mode** where friends control their buckets from their smartphones via a QR code over local Wi-Fi.
@@ -118,6 +124,12 @@ For Software:
 🎥 **[Click here to watch / download the Gameplay Demo Recording (MP4)](images/Recording%202026-09-12%20020811.mp4)**
 
 *Demonstrates live gameplay: dodging falling mangoes, catching Pari with audio blast, and 4-player smartphone multiplayer action.*
+
+# Live One-Click Game Demo
+🎮 **[Click Here to Launch & Play Mango Pari Live on GitHub Pages](https://magicvisonary.github.io/useless_project_Abhishek/)**
+
+- **Instant Browser Play:** Single Player mode, "I Don't Know" meme guide, and 2-Player keyboard multiplayer work 100% directly in your browser without downloading anything!
+- **Local Wi-Fi Smartphone Gamepads:** Clone the repo and run `start_game.bat` or `python server.py` to connect up to 4 smartphone gamepads with real-time haptic feedback over local Wi-Fi.
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 

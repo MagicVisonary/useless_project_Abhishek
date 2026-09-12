@@ -2547,14 +2547,12 @@
   let qrGenerated = false;
 
   async function initMultiplayerLobby(){
-    let localIp = window.location.hostname || 'localhost';
-    let port = window.location.port || '8080';
-    let controllerUrl = `${window.location.protocol}//${localIp}:${port}/controller.html`;
+    let controllerUrl = new URL('controller.html', window.location.href).href;
 
     try {
       const res = await fetch('/api/ip');
       const data = await res.json();
-      if (data.url) controllerUrl = data.url;
+      if (data && data.url) controllerUrl = data.url;
     } catch(e){}
 
     const qrLinkText = document.getElementById('qrLinkText');
